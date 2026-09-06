@@ -38,6 +38,6 @@ Local baseline validation on 2026-09-06: **pass**.
 
 Independent clean-clone validation on 2026-09-06: **pass**. The clean clone matched the baseline commit, passed the full structural validator, and reproduced the 138-file SHA-256 asset manifest.
 
-GitHub remote verification remains pending until the authenticated push completes.
+GitHub remote verification on 2026-09-06: **pass** at commit `7d4fbd77acf615bf5624bebaa3cfc07afbaeb55f`. A fresh public clone contained 180 tracked files, passed JavaScript syntax and structural validation, reproduced all 138 recorded asset hashes, and confirmed that the live Sites hosting manifest was not exposed.
 
 Browser visual QA was not requested for this migration; gameplay rendering is unchanged from the validated source lineage.
