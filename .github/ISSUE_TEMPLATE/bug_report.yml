@@ -1,0 +1,53 @@
+name: Bug report
+description: Report a reproducible gameplay, input, visual, audio, online, or interface defect.
+title: "[Bug]: "
+labels: [bug, triage]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Combat, Animation, Input/controller, Audio, Selection/UI, Stage, Story, Online/ranking, Performance, Accessibility, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Include fighter, opponent, stage, mode, round and exact input sequence.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen?
+    validations:
+      required: true
+  - type: input
+    id: build
+    attributes:
+      label: Build or commit
+      placeholder: Site version, tag or commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser/version, OS, device, controller model and network conditions where relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Screenshot, video, replay/input log, console output or timing details.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I checked for an existing issue.
+          required: true
+        - label: This report contains no credentials or private player data.
+          required: true

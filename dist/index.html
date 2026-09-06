@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#12091d">
+  <meta name="description" content="Mamacha Fighter — an original Andean-inspired arcade fighting game.">
+  <title>Mamacha Fighter</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell" aria-label="Mamacha Fighter game">
+    <div class="topbar">
+      <div class="brand">MAMACHA <span>FIGHTER</span></div>
+      <div class="status" id="status">Loading fighters…</div>
+      <div class="actions">
+        <button id="muteBtn" type="button" aria-label="Toggle sound">Sound: On</button>
+        <button id="fullBtn" type="button">Fullscreen</button>
+      </div>
+    </div>
+    <section class="cabinet" id="cabinet">
+      <canvas id="game" width="1280" height="720" aria-label="Mamacha Fighter game canvas"></canvas>
+      <div class="scanlines" aria-hidden="true"></div>
+      <div class="loading" id="loading"><span></span><b>LOADING TOURNAMENT</b></div>
+    </section>
+    <div class="help" id="help">
+      <span><b>P1</b> WASD · J light · K heavy · L / I specials · U block</span>
+      <span><b>P2</b> arrows · 1 light · 2 heavy · 3 / 5 specials · 0 block</span>
+      <span><b>GAMEPAD</b> D-pad · A/X attack · B/Y specials · LB block</span>
+    </div>
+    <div class="touch" id="touch" aria-label="Touch controls">
+      <div class="touch-dir">
+        <button data-touch="left" aria-label="Move left">◀</button>
+        <button data-touch="up" aria-label="Jump">▲</button>
+        <button data-touch="right" aria-label="Move right">▶</button>
+      </div>
+      <div class="touch-atk">
+        <button data-touch="block">BLK</button>
+        <button data-touch="light">L</button>
+        <button data-touch="heavy">H</button>
+        <button data-touch="sp1">S1</button>
+        <button data-touch="sp2">S2</button>
+      </div>
+    </div>
+  </main>
+  <script src="game.js?v=28"></script>
+</body>
+</html>

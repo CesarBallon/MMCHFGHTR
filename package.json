@@ -1,0 +1,13 @@
+{
+  "name": "mamacha-fighter",
+  "version": "0.0.0-prototype",
+  "private": true,
+  "description": "Mamacha Fighter browser-game prototype and production roadmap",
+  "scripts": {
+    "assets:manifest": "node tools/asset-checksums.mjs --write",
+    "test": "node --check dist/game.js && node tools/validate-project.mjs && node tools/asset-checksums.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

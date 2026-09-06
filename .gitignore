@@ -1,0 +1,21 @@
+# Local/generated inputs
+source-assets/action-atlases/*/raw/
+staging/
+.openai/hosting.json
+*.tmp
+*.bak
+*.orig
+*~
+
+# Local tooling
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Packaging and test output
+*.tar
+*.tar.gz
+*.bundle
+coverage/
+artifacts/

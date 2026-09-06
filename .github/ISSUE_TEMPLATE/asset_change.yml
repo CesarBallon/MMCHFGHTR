@@ -1,0 +1,39 @@
+name: Art, animation, or audio change
+description: Propose or deliver a canonical or runtime asset update with provenance.
+title: "[Asset]: "
+labels: [assets, triage]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Asset type
+      options: [Canonical character art, Selection art, Action animation, Stage, UI, Music, Sound effect, Voice, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and acceptance criteria
+      description: Include fighter/stage, animation state, expected frame rate, dimensions, transparency, contact shadow and relative scale where relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Creator, source and rights
+      description: State who created every source, what tools/references were used, and the project's permission to modify and distribute it.
+    validations:
+      required: true
+  - type: textarea
+    id: exports
+    attributes:
+      label: Canonical sources and runtime exports
+      description: List paths, formats, frame layout, compression and checksums if available.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Visual or listening evidence
+    validations:
+      required: true

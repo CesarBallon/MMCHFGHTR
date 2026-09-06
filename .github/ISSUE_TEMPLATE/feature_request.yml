@@ -1,0 +1,34 @@
+name: Feature proposal
+description: Propose a focused gameplay, technical, narrative, accessibility, or production improvement.
+title: "[Proposal]: "
+labels: [proposal, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Player or production problem
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe acceptance criteria without prescribing implementation where possible.
+    validations:
+      required: true
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: Likely milestone
+      options: [M1 Production foundation, M2 Combat vertical slice, M3 Arcade and story, M4 Full roster and bosses, M5 Online unranked, M6 Accounts and ranked beta, M7 Public launch, M8 Live operations, Uncertain]
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and risks
+  - type: textarea
+    id: evidence
+    attributes:
+      label: References or prototype evidence
+      description: Use only material the project has permission to use; identify inspiration rather than requesting direct copying.
