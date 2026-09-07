@@ -14,6 +14,7 @@ export const enum InputFlag {
 }
 
 export interface FighterState {
+  fighterId: import("../content").FighterId;
   x: number;
   y: number;
   velocityX: number;
@@ -23,12 +24,34 @@ export interface FighterState {
   grounded: boolean;
   crouching: boolean;
   facing: -1 | 1;
+  action: FighterAction;
+  actionFrame: number;
+  hitResolved: boolean;
+  stunFrames: number;
 }
+
+export type FighterAction =
+  | "idle"
+  | "walk"
+  | "crouch"
+  | "jump"
+  | "block"
+  | "hitstun"
+  | "ko"
+  | `move:${string}`;
+export type MatchPhase = "fight" | "round-over" | "match-over";
 
 export interface MatchState {
   frame: number;
   randomState: number;
   fighters: readonly [FighterState, FighterState];
+  previousInputs: readonly [number, number];
+  phase: MatchPhase;
+  phaseFrames: number;
+  round: number;
+  roundWins: readonly [number, number];
+  roundWinner: 0 | 1 | null;
+  matchWinner: 0 | 1 | null;
 }
 
 export interface FrameInput {
@@ -40,4 +63,8 @@ export interface Replay {
   readonly version: 1;
   readonly seed: number;
   readonly inputs: readonly FrameInput[];
+  readonly fighters?: readonly [
+    import("../content").FighterId,
+    import("../content").FighterId,
+  ];
 }

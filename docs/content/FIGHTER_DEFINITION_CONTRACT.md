@@ -12,6 +12,6 @@ The production client represents fighters and moves as validated data. Legacy co
 - Damage, health, meter and permille multipliers are integers.
 - Invalid or unsupported schema versions fail closed.
 
-Each fighter declares identity, presentation assets, home stage/theme, stats, unique moves and exactly two signature specials. Each move declares its input, frame data, damage, stun, meter behavior and animation clip. Runtime validation rejects unknown identifiers, fractional or out-of-range values, wrong asset paths, duplicate IDs and incomplete rosters.
+Each fighter declares identity, presentation assets, home stage/theme, stats, unique moves and exactly two signature specials. Each move declares its input, frame data, reach, damage, stun, meter behavior and animation clip. Runtime validation rejects unknown identifiers, fractional or out-of-range values, wrong asset paths, duplicate IDs and incomplete rosters.
 
 Migration proceeds by validating all eight definitions and repository assets before switching any legacy consumer.
