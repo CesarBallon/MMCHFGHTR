@@ -12,7 +12,7 @@
 - Added the first DOM-free simulation modules: fixed 60 Hz timing, fixed-point
   movement, seeded randomness, opponent-facing direction, crouching, jumping,
   replay input logs and deterministic state hashing.
-- Added 22 unit tests covering simulation rate, replay reproduction, input
+- Added 36 unit tests covering simulation rate, replay reproduction, input
   sensitivity, invalid replay frames and versions, movement scale, jump arc,
   landing, stage boundaries, crouching and facing direction.
 - Corrected the initial fixed-point movement constants so walking and jumping
@@ -26,9 +26,14 @@
   current asset revisions, relative proportions and prototype balance values.
 - Added exact baseline-equivalence and repository-asset assertions for the
   canonical roster. Aligned Node type declarations with the Node 24 runtime.
+- Extended the DOM-free core with edge-triggered attacks, authored active-frame
+  windows, data-driven reach and damage, simultaneous trades, blocking, chip
+  damage, block/hit stun, meter, KO, round reset and best-of-three victory.
+- Expanded deterministic hashes for combat and round state. Replay boundaries
+  now reject unknown fighters, malformed seeds and unsupported input bits.
+- Added combat replay, special-move, held-input, stun, meter, KO and round tests.
 
 ## Pending
 
-- Extract additional combat state and rules from the legacy prototype.
 - Add browser smoke tests for title, selection and local-versus flows.
 - Measure the initial M1 performance and download budgets.

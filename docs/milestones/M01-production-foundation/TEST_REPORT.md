@@ -1,6 +1,6 @@
 # M01 test report
 
-Status: **In progress — foundation and canonical content pass locally and in CI**
+Status: **In progress — deterministic combat passes locally and in CI**
 
 ## Environment
 
@@ -10,7 +10,7 @@ Status: **In progress — foundation and canonical content pass locally and in C
 - Vite: 8.2.2
 - Vitest: 5.0.0
 - Branch: `main`
-- Verified commit: `b9cda31eec96f87e9aad3705fb1fbe3bfefd697f`
+- Verified commit: `63bfa0c1783693e41608370000cdf6cbb9ee4143`
 
 ## Initial scaffold results
 
@@ -20,11 +20,11 @@ Status: **In progress — foundation and canonical content pass locally and in C
 | Baseline project structure | Pass | 8 fighters, 32 source/runtime atlas pairs, 8 stages and 11 soundtrack files |
 | Baseline asset integrity | Pass | All 138 recorded SHA-256 hashes reproduced |
 | Strict TypeScript check | Pass | `tsc --noEmit` |
-| Core and content unit tests | Pass | 3 suites, 22 tests |
-| Vite production build | Pass | 7 modules; 2.69 kB ESM core bundle, 1.21 kB gzip |
+| Core and content unit tests | Pass | 4 suites, 36 tests |
+| Vite production build | Pass | 10 modules; 11.80 kB ESM core bundle, 4.16 kB gzip |
 
-The same locked validation suite passed in GitHub Actions for PR #8. A clean
-post-merge checkout reproduced all checks, contained 203 tracked files, no
+The same locked validation suite passed in GitHub Actions for PR #10. A clean
+post-merge checkout reproduced all checks, contained 205 tracked files, no
 zero-byte files and no working-tree changes.
 
 ## Unit-test coverage added
@@ -34,7 +34,7 @@ zero-byte files and no working-tree changes.
 - changed input changes the final state hash
 - discontinuous replay frames are rejected
 - unsupported replay versions are rejected
-- walking advances 240 rendered pixels per second
+- Saja's canonical walk speed advances 288 rendered pixels per second
 - jump height and landing time remain within explicit bounds
 - movement clamps to both stage boundaries
 - crouching, jumping, grounded state and opponent-facing direction
@@ -45,11 +45,18 @@ zero-byte files and no working-tree changes.
 - signature-special references and complete-roster enforcement
 - exact stage, soundtrack, stats, proportions, specials and atlas mappings
 - existence of every referenced canonical and runtime asset
+- edge-triggered attack commands and non-repeating held inputs
+- authored multi-frame active windows and canonical special-move reach
+- simultaneous trades without player-order advantage
+- blocking, chip damage, block stun, hit stun and movement lockout
+- meter gain and deterministic meter cap
+- KO, round wins, health reset and best-of-three match victory
+- malformed replay fighter/input rejection and combat replay hashes
 
 ## Required evidence
 
-- deterministic simulation unit tests — **initial coverage added**
-- replay reproduction and state-hash tests — **initial coverage added**
+- deterministic simulation unit tests — **complete for M1 core scope**
+- replay reproduction and state-hash tests — **complete for M1 core scope**
 - fighter-content schema validation — **complete**
 - keyboard and controller smoke tests
 - title, selection and local-versus browser smoke tests
