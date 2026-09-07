@@ -12,17 +12,23 @@
 - Added the first DOM-free simulation modules: fixed 60 Hz timing, fixed-point
   movement, seeded randomness, opponent-facing direction, crouching, jumping,
   replay input logs and deterministic state hashing.
-- Added nine unit tests covering simulation rate, replay reproduction, input
+- Added 22 unit tests covering simulation rate, replay reproduction, input
   sensitivity, invalid replay frames and versions, movement scale, jump arc,
   landing, stage boundaries, crouching and facing direction.
 - Corrected the initial fixed-point movement constants so walking and jumping
   use the same 1,000-unit-per-pixel scale as stage coordinates.
 - Extended CI to install locked dependencies, run legacy and M1 validation, and
   build the production combat-core bundle under Node.js 24.
+- Added a runtime-validated fighter and move schema with deterministic numeric
+  boundaries and a minimum authored animation rate of 16 fps.
+- Added canonical definitions for Saja, Benita, Mariachay, Asunta, Shabuka,
+  Bella, Jarjacha and Coraima, preserving their assigned stages, themes,
+  current asset revisions, relative proportions and prototype balance values.
+- Added exact baseline-equivalence and repository-asset assertions for the
+  canonical roster. Aligned Node type declarations with the Node 24 runtime.
 
 ## Pending
 
-- Convert fighter and move definitions to validated data.
 - Extract additional combat state and rules from the legacy prototype.
 - Add browser smoke tests for title, selection and local-versus flows.
 - Measure the initial M1 performance and download budgets.

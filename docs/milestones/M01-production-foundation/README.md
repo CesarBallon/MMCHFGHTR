@@ -3,6 +3,7 @@
 Status: **In progress**
 Tracking issue: [#6](https://github.com/CesarBallon/MMCHFGHTR/issues/6)
 Base: `64cb5af5147252fcd9b2a82dd8b2718e7368fd29`
+Current verified commit: `b9cda31eec96f87e9aad3705fb1fbe3bfefd697f`
 
 ## Goal
 
@@ -26,6 +27,11 @@ Implementation depends on ADR issues [#1](https://github.com/CesarBallon/MMCHFGH
 ## Exit criteria
 
 See the checklist in [#6](https://github.com/CesarBallon/MMCHFGHTR/issues/6). This milestone remains incomplete until every criterion is supported by evidence in this packet.
+
+## Completed slices
+
+- PR #7: deterministic TypeScript, Vite and Vitest foundation.
+- PR #8: validated canonical definitions for all eight fighters and their moves.
 
 ## Rollback
 
