@@ -1,0 +1,41 @@
+import type { FighterDefinition, FighterId, MoveDefinition } from './fighter-schema';
+
+type Special = readonly [id: string, name: string, atlas: string, damage: number, startup: number, active: number, recovery: number, hitstun: number];
+type FighterSeed = readonly [FighterId, string, FighterDefinition['archetype'], FighterDefinition['homeStage'], number, number, number, number, number, number, Special, Special];
+
+function combatMove(id: string, displayName: string, kind: MoveDefinition['kind'], command: MoveDefinition['command'], atlas: string, startFrame: number, frameCount: number, startupFrames: number, activeFrames: number, recoveryFrames: number, damage: number, hitstunFrames: number): MoveDefinition {
+  return { id, displayName, kind, command, startupFrames, activeFrames, recoveryFrames, damage, hitstunFrames, blockstunFrames: 7, meterGain: damage * 2, meterCost: 0, animation: { atlas, startFrame, frameCount, framesPerSecond: 16, looping: false } };
+}
+function normals(): readonly MoveDefinition[] {
+  return [
+    combatMove('standing-light', 'Standing Light', 'normal', ['light'], 'combat', 0, 4, 5, 3, 8, 6, 12),
+    combatMove('standing-heavy', 'Standing Heavy', 'normal', ['heavy'], 'combat', 4, 4, 10, 5, 13, 11, 23),
+  ];
+}
+function special(values: Special, command: 'special1' | 'special2'): MoveDefinition {
+  const [id, name, atlas, damage, startup, active, recovery, hitstun] = values;
+  return combatMove(id, name, 'special', [command], atlas, 0, 16, startup, active, recovery, damage, hitstun);
+}
+function artwork(id: FighterId, version: number): FighterDefinition['assets'] {
+  const query = `?v=${version}`;
+  return { canonicalModel: `source-assets/canonical-models-v16/${id}.png`, legacyRuntime: `dist/assets/fighters/${id}.webp${id === 'jarjacha' ? query : ''}`, selection: `dist/assets/fighters/select-v16/${id}.webp${query}`, portrait: `dist/assets/fighters/portraits-v16/${id}.webp${query}` };
+}
+
+const seeds: readonly FighterSeed[] = [
+  ['saja', 'Saja', 'whip', 'titicaca', 17, 4800, 12400, 940, 1000, 306, ['braid-lash', 'Braid Lash', 'braid-lash', 13, 8, 5, 26, 18], ['saya-wave', 'Saya Wave', 'saya-wave', 12, 12, 4, 23, 17]],
+  ['benita', 'Benita', 'heavy', 'prison', 18, 3450, 10400, 1200, 1130, 312, ['beer-bath', 'Beer Bath', 'beer-bath', 9, 11, 8, 20, 17], ['hidden-shot', 'Hidden Shot', 'revolver', 16, 14, 1, 24, 17]],
+  ['mariachay', 'Mariachay', 'rush', 'machu', 17, 5350, 13200, 900, 910, 288, ['rolling-rush', 'Rolling Rush', 'rolling-rush', 14, 7, 20, 18, 21], ['sky-slap', 'Sky Slap', 'sky-slap', 16, 9, 24, 15, 8]],
+  ['asunta', 'Asunta', 'stretch', 'lima', 17, 3750, 10700, 1020, 1080, 315, ['baby-shriek', 'Baby Shriek', 'baby-shriek', 5, 13, 6, 20, 78], ['diaper-toss', 'Diaper Toss', 'diaper-toss', 12, 12, 4, 23, 17]],
+  ['shabuka', 'Shabuka', 'power', 'circus', 17, 3800, 11600, 1250, 1160, 337, ['pom-power', 'Pom Power', 'pom-power', 13, 12, 5, 22, 17], ['rising-cheer', 'Rising Cheer', 'rising-cheer', 17, 6, 12, 25, 27]],
+  ['bella', 'Bella', 'staff', 'cumbia', 17, 4450, 11800, 1000, 960, 321, ['high-note', 'High Note', 'high-note', 5, 13, 6, 20, 78], ['mic-return', 'Mic Return', 'mic-return', 12, 11, 8, 20, 17]],
+  ['jarjacha', 'Jarjacha', 'odd', 'mercado', 19, 4150, 11300, 960, 900, 321, ['dizzy-hands', 'Dizzy Hands', 'dizzy-hands', 4, 14, 7, 18, 78], ['sandal-return', 'Sandal Return', 'sandal-return', 11, 11, 8, 20, 17]],
+  ['coraima', 'Coraima', 'balanced', 'arequipa', 17, 4750, 12300, 1040, 1000, 318, ['flying-kiss', 'Flying Kiss', 'flying-kiss', 10, 12, 4, 23, 17], ['tornado-heel', 'Tornado Heel', 'tornado-heel', 16, 7, 11, 24, 24]],
+];
+
+export const FIGHTERS: readonly FighterDefinition[] = Object.freeze(seeds.map(([id, displayName, archetype, homeStage, version, walkSpeed, jumpSpeed, powerPermille, defensePermille, renderHeight, first, second]): FighterDefinition => ({
+  schemaVersion: 1, id, displayName, archetype, homeStage, theme: `${displayName}Theme.mp3`, assets: artwork(id, version),
+  stats: { walkSpeed, jumpSpeed, health: 1000, powerPermille, defensePermille, renderHeight },
+  moves: [...normals(), special(first, 'special1'), special(second, 'special2')], specialMoveIds: [first[0], second[0]],
+})));
+
+export const FIGHTERS_BY_ID = Object.freeze(Object.fromEntries(FIGHTERS.map((fighter) => [fighter.id, fighter]))) as Readonly<Record<FighterId, FighterDefinition>>;
