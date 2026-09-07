@@ -1,9 +1,9 @@
 import { nextRandom, normalizeSeed } from './random';
 import { FIXED_SCALE, InputFlag, type FighterState, type MatchState } from './types';
 
-const WALK_SPEED = 75;
-const JUMP_SPEED = 390;
-const GRAVITY = 24;
+const WALK_SPEED = 4 * FIXED_SCALE;
+const JUMP_SPEED = 12 * FIXED_SCALE;
+const GRAVITY = 620;
 const STAGE_LEFT = 80 * FIXED_SCALE;
 const STAGE_RIGHT = 920 * FIXED_SCALE;
 

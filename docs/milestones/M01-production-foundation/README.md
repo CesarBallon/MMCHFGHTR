@@ -1,7 +1,7 @@
 # M01 — Production foundation
 
-Status: **In progress**  
-Tracking issue: [#6](https://github.com/CesarBallon/MMCHFGHTR/issues/6)  
+Status: **In progress**
+Tracking issue: [#6](https://github.com/CesarBallon/MMCHFGHTR/issues/6)
 Base: `64cb5af5147252fcd9b2a82dd8b2718e7368fd29`
 
 ## Goal

@@ -12,8 +12,11 @@
 - Added the first DOM-free simulation modules: fixed 60 Hz timing, fixed-point
   movement, seeded randomness, opponent-facing direction, crouching, jumping,
   replay input logs and deterministic state hashing.
-- Added five unit tests covering simulation rate, replay reproduction, input
-  sensitivity, invalid replay frames, crouching, jumping and facing direction.
+- Added nine unit tests covering simulation rate, replay reproduction, input
+  sensitivity, invalid replay frames and versions, movement scale, jump arc,
+  landing, stage boundaries, crouching and facing direction.
+- Corrected the initial fixed-point movement constants so walking and jumping
+  use the same 1,000-unit-per-pixel scale as stage coordinates.
 - Extended CI to install locked dependencies, run legacy and M1 validation, and
   build the production combat-core bundle under Node.js 24.
 
