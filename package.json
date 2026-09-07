@@ -1,13 +1,24 @@
 {
   "name": "mamacha-fighter",
-  "version": "0.0.0-prototype",
+  "version": "0.1.0-m1",
   "private": true,
+  "type": "module",
   "description": "Mamacha Fighter browser-game prototype and production roadmap",
   "scripts": {
     "assets:manifest": "node tools/asset-checksums.mjs --write",
-    "test": "node --check dist/game.js && node tools/validate-project.mjs && node tools/asset-checksums.mjs"
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run test:legacy && npm run typecheck && npm run test:unit",
+    "test:legacy": "node --check dist/game.js && node tools/validate-project.mjs && node tools/asset-checksums.mjs",
+    "test:unit": "vitest run"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
+  },
+  "packageManager": "npm@11.9.0",
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vite": "^8.2.2",
+    "vitest": "^5.0.0"
   }
 }
