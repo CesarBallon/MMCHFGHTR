@@ -63,6 +63,7 @@ export interface MoveDefinition {
   readonly activeFrames: number;
   readonly recoveryFrames: number;
   readonly damage: number;
+  readonly reach: number;
   readonly hitstunFrames: number;
   readonly blockstunFrames: number;
   readonly meterGain: number;
@@ -202,6 +203,7 @@ function validateMove(
   integerField(value.activeFrames, issues, `${path}.activeFrames`, 1, 120);
   integerField(value.recoveryFrames, issues, `${path}.recoveryFrames`, 0, 240);
   integerField(value.damage, issues, `${path}.damage`, 0, 1000);
+  integerField(value.reach, issues, `${path}.reach`, 1, 500);
   integerField(value.hitstunFrames, issues, `${path}.hitstunFrames`, 0, 240);
   integerField(
     value.blockstunFrames,

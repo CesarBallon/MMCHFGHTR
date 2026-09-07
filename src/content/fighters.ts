@@ -41,6 +41,7 @@ function combatMove(
   activeFrames: number,
   recoveryFrames: number,
   damage: number,
+  reach: number,
   hitstunFrames: number,
 ): MoveDefinition {
   return {
@@ -52,6 +53,7 @@ function combatMove(
     activeFrames,
     recoveryFrames,
     damage,
+    reach,
     hitstunFrames,
     blockstunFrames: 7,
     meterGain: damage * 2,
@@ -79,6 +81,7 @@ function normals(): readonly MoveDefinition[] {
       3,
       8,
       6,
+      78,
       12,
     ),
     combatMove(
@@ -93,6 +96,7 @@ function normals(): readonly MoveDefinition[] {
       5,
       13,
       11,
+      112,
       23,
     ),
   ];
@@ -114,6 +118,7 @@ function special(
     active,
     recovery,
     damage,
+    command === "special1" ? 250 : 340,
     hitstun,
   );
 }

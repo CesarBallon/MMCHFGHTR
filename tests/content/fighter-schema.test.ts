@@ -21,6 +21,7 @@ function definition(id: FighterId = "saja"): FighterDefinition {
     activeFrames: 5,
     recoveryFrames: 18,
     damage: 130,
+    reach: 250,
     hitstunFrames: 18,
     blockstunFrames: 9,
     meterGain: 20,
