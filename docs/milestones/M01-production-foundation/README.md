@@ -3,7 +3,7 @@
 Status: **In progress**
 Tracking issue: [#6](https://github.com/CesarBallon/MMCHFGHTR/issues/6)
 Base: `64cb5af5147252fcd9b2a82dd8b2718e7368fd29`
-Current verified commit: `b9cda31eec96f87e9aad3705fb1fbe3bfefd697f`
+Current verified commit: `63bfa0c1783693e41608370000cdf6cbb9ee4143`
 
 ## Goal
 
@@ -32,6 +32,7 @@ See the checklist in [#6](https://github.com/CesarBallon/MMCHFGHTR/issues/6). Th
 
 - PR #7: deterministic TypeScript, Vite and Vitest foundation.
 - PR #8: validated canonical definitions for all eight fighters and their moves.
+- PR #10: deterministic attacks, blocking, stun, meter, KO and round rules.
 
 ## Rollback
 
