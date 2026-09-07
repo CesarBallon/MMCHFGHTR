@@ -2,6 +2,9 @@
 source-assets/action-atlases/*/raw/
 staging/
 .openai/hosting.json
+node_modules/
+build/
+coverage/
 *.tmp
 *.bak
 *.orig
