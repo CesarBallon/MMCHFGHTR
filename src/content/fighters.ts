@@ -122,6 +122,50 @@ function special(
     hitstun,
   );
 }
+function superMove(id: "saja" | "benita"): MoveDefinition {
+  return id === "saja"
+    ? {
+        ...combatMove(
+          "braid-tempest",
+          "Braid Tempest",
+          "super",
+          ["special1", "special2"],
+          "braid-lash",
+          0,
+          16,
+          10,
+          12,
+          38,
+          140,
+          320,
+          32,
+        ),
+        blockstunFrames: 18,
+        meterGain: 0,
+        meterCost: 1_000,
+      }
+    : {
+        ...combatMove(
+          "last-call",
+          "Last Call",
+          "super",
+          ["special1", "special2"],
+          "revolver",
+          0,
+          16,
+          14,
+          8,
+          42,
+          160,
+          400,
+          35,
+        ),
+        blockstunFrames: 20,
+        meterGain: 0,
+        meterCost: 1_000,
+      };
+}
+
 function artwork(id: FighterId, version: number): FighterDefinition["assets"] {
   const query = `?v=${version}`;
   return {
@@ -282,6 +326,7 @@ export const FIGHTERS: readonly FighterDefinition[] = Object.freeze(
         ...normals(),
         special(first, "special1"),
         special(second, "special2"),
+        ...(id === "saja" || id === "benita" ? [superMove(id)] : []),
       ],
       specialMoveIds: [first[0], second[0]],
     }),
