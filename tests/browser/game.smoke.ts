@@ -57,7 +57,7 @@ test('keyboard completes the two-player local-versus selection flow', async ({ p
   await expect(status(page)).toContainText('Local versus');
 });
 
-test('a standard gamepad can enter fighter selection', async ({ page }) => {
+test('a standard gamepad enters fighter selection', async ({ page }) => {
   await page.addInitScript(() => {
     const state = { connected: true };
     const buttons = Array.from({ length: 16 }, () => ({ pressed: false, touched: false, value: 0 }));
@@ -72,12 +72,13 @@ test('a standard gamepad can enter fighter selection', async ({ page }) => {
     });
   });
   await boot(page, false);
-  await page.evaluate(() => (window as unknown as { __gamepadButton(index: number, pressed: boolean): void }).__gamepadButton(9, true));
-  await page.waitForTimeout(500);
-  await page.evaluate(() => {
-    const controls = window as unknown as { __gamepadButton(index: number, pressed: boolean): void; __disconnectGamepad(): void };
-    controls.__gamepadButton(9, false);
-    controls.__disconnectGamepad();
-  });
+  const setButton = (index: number, pressed: boolean) => page.evaluate(
+    ([buttonIndex, buttonPressed]) => (window as unknown as { __gamepadButton(index: number, pressed: boolean): void }).__gamepadButton(buttonIndex, buttonPressed),
+    [index, pressed] as const,
+  );
+  await setButton(9, true);
+  await page.waitForTimeout(1_000);
+  await setButton(9, false);
+  await page.evaluate(() => (window as unknown as { __disconnectGamepad(): void }).__disconnectGamepad());
   await expect(status(page)).toHaveText('Choose your fighter');
 });
