@@ -172,7 +172,7 @@ describe("M02 combat-presentation contract", () => {
   test("can validate a partial authoring fixture without waiving data rules", () => {
     const candidate = contract();
     expect(validateFighterCombatContract(candidate, false).valid).toBe(true);
-    const partial = { ...candidate, animations: [animation("idle")] };
+    const partial = { ...candidate, animations: [animation("idle")], moves: [] };
     expect(validateFighterCombatContract(partial, false).valid).toBe(true);
   });
 });
