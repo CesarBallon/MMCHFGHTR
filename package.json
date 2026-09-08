@@ -8,10 +8,11 @@
     "assets:manifest": "node tools/asset-checksums.mjs --write",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:legacy && npm run typecheck && npm run test:unit",
+    "test": "npm run test:legacy && npm run typecheck && npm run test:unit && npm run test:performance",
     "test:legacy": "node --check dist/game.js && node tools/validate-project.mjs && node tools/asset-checksums.mjs",
     "test:unit": "vitest run",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:performance": "node tools/performance-budgets.mjs"
   },
   "engines": {
     "node": ">=24"

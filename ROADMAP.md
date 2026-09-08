@@ -1,6 +1,6 @@
 # Mamacha Fighter product roadmap
 
-Status date: 2026-09-06
+Status date: 2026-09-08
 
 ## Product goal
 
@@ -21,6 +21,12 @@ The roadmap deliberately separates **combat quality**, **content**, and **networ
 | M6 — Accounts and ranked beta | Competitive results are durable and trustworthy | Account identity; authoritative result validation; placement matches; rating service; seasons; leaderboards; disconnect penalties; moderation and privacy controls; operations runbook |
 | M7 — Public launch | A monitored release is available at a stable URL | Public deployment; custom domain decision; error/performance monitoring; backups; incident response; release notes; legal/credits review; launch rollback plan |
 | M8 — Live operations | The game can improve without destabilizing competition | Balance cadence; season rollover; replay compatibility policy; public known-issues board; content pipeline; post-season reports |
+
+## Current milestone status
+
+- M0 — Prototype baseline: complete.
+- M1 — Production foundation: complete; evidence is recorded in [the M01 packet](docs/milestones/M01-production-foundation/README.md).
+- M2 — Combat vertical slice: next; fighter pairing requires approval.
 
 ## Immediate delivery sequence
 

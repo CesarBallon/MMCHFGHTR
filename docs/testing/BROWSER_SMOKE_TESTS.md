@@ -15,4 +15,4 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-GitHub Actions installs Chromium and runs this suite after the static, manifest, type, and unit validations. Failure artifacts include a screenshot, video, and Playwright trace.
+GitHub Actions installs Chromium and runs this suite after the static, manifest, type, and unit validations. Failure artifacts include a screenshot and Playwright trace.
