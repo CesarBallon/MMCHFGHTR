@@ -49,6 +49,7 @@ test('keyboard completes the two-player local-versus selection flow', async ({ p
   await page.keyboard.press('Enter');
   await expect(status(page)).toHaveText('Choose your fighter');
   await page.keyboard.press('KeyJ');
+  await page.waitForTimeout(100);
   await expect(status(page)).toHaveText('Choose your fighter');
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Numpad1');
