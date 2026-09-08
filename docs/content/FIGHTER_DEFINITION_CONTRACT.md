@@ -42,3 +42,8 @@ A complete M02 fighter must provide every state in `REQUIRED_M02_ANIMATION_STATE
 ### Runtime interaction semantics
 
 The M02 runtime consumes the contract rather than treating it as renderer-only metadata. Grounded pushbox dimensions prevent overlap; hitboxes mirror with facing; throw range is explicit in debug output; and cancel windows are evaluated by simulation frame. Throw is a distinct input token. Shared hit stop freezes fighter state while global deterministic time continues.
+
+
+### Super command
+
+Benita and Saja each declare one `super` move using the ordered command `["special1", "special2"]`, a 1,000-point meter cost, move-specific frame data, and the same per-frame collision contract as other attacks. The runtime requires both inputs to rise together.
