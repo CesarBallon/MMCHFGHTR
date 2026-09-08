@@ -40,7 +40,7 @@ For each fighter:
 
 ## Added or replaced assets
 
-None in the initialization slice.
+No binary assets are added in this mechanics slice. Braid Tempest temporarily references Saja’s existing `braid-lash` atlas, and Last Call temporarily references Benita’s existing `revolver` atlas for timing and collision integration. Dedicated super atlases remain required before M02 closeout; these references must not be treated as final art.
 
 ## Provenance and licensing
 
