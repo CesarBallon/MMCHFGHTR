@@ -37,3 +37,12 @@ alter combat outcomes.
 
 The legacy `dist/` client remains the playable public implementation until its
 renderer and input adapters consume this core in a separately reviewed slice.
+
+
+## M02 authored collision integration
+
+Benita and Saja resolve hits from their validated per-frame combat contracts. Local boxes are transformed into fixed-scale world coordinates according to the fighter's current facing. Intersection uses strict axis-aligned bounds and remains independent of rendering cadence.
+
+The remaining six fighters retain the M01 distance check until their production contracts are authored. This fallback is explicit and covered by tests; it prevents M02 from silently changing the rest of the roster.
+
+`createCombatDebugSnapshot` exposes a read-only, renderer-neutral view of each fighter's current animation state, source frame, foot anchor, attached shadow, hurtboxes, hitboxes, pushbox and throw range. Debug visualization consumes this snapshot without mutating match state, so enabling overlays cannot change a replay hash or combat result.
