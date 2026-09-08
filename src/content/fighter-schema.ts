@@ -39,6 +39,7 @@ export const INPUT_TOKENS = [
   "special1",
   "special2",
   "block",
+  "throw",
 ] as const;
 
 export type FighterId = (typeof FIGHTER_IDS)[number];

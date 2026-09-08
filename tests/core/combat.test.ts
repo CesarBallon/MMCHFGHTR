@@ -92,9 +92,14 @@ describe("deterministic combat rules", () => {
     expect(hit.fighters[1].action).toBe("block");
     expect(hit.fighters[1].stunFrames).toBe(7);
     expect(hit.fighters[0].meter).toBe(6);
-    const stillBlocking = stepMatch(hit, [0, InputFlag.Block]);
-    expect(stillBlocking.fighters[1].action).toBe("block");
-    expect(stillBlocking.fighters[1].stunFrames).toBe(6);
+    const frozen = stepMatch(hit, [0, InputFlag.Block]);
+    expect(frozen.fighters[1].action).toBe("block");
+    expect(frozen.fighters[1].stunFrames).toBe(7);
+    const resumed = advance(frozen, frozen.hitStopFrames + 1, [
+      0,
+      InputFlag.Block,
+    ]);
+    expect(resumed.fighters[1].stunFrames).toBe(6);
   });
 
   test("can connect during a later active frame", () => {
@@ -116,7 +121,13 @@ describe("deterministic combat rules", () => {
   test("hit stun prevents movement until it expires", () => {
     const hit = lightHit(inRange());
     const x = hit.fighters[1].x;
-    const stunned = stepMatch(hit, [0, InputFlag.Right]);
+    const frozen = advance(hit, hit.hitStopFrames, [
+      0,
+      InputFlag.Right,
+    ]);
+    expect(frozen.fighters[1].x).toBe(x);
+    expect(frozen.fighters[1].stunFrames).toBe(hit.fighters[1].stunFrames);
+    const stunned = stepMatch(frozen, [0, InputFlag.Right]);
     expect(stunned.fighters[1].x).toBe(x);
     expect(stunned.fighters[1].stunFrames).toBe(hit.fighters[1].stunFrames - 1);
   });

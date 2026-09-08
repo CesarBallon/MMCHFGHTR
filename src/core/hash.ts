@@ -29,6 +29,9 @@ export function hashMatchState(state: MatchState): string {
   hash = mix(hash, state.matchWinner ?? -1);
   hash = mix(hash, state.previousInputs[0]);
   hash = mix(hash, state.previousInputs[1]);
+  hash = mix(hash, state.hitStopFrames);
+  hash = mix(hash, state.superFreezeFrames);
+  hash = mix(hash, state.superFreezeOwner ?? -1);
   for (const fighter of state.fighters) {
     hash = mixText(hash, fighter.fighterId);
     hash = mixText(hash, fighter.action);

@@ -2,7 +2,7 @@ import { FIGHTER_IDS } from "../content";
 import { createInitialState, stepMatch } from "./simulation";
 import type { MatchState, Replay } from "./types";
 
-const INPUT_MASK = (1 << 9) - 1;
+const INPUT_MASK = (1 << 10) - 1;
 
 function validateReplay(replay: Replay): void {
   if (replay.version !== 1)

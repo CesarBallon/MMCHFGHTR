@@ -1,3 +1,11 @@
+export {
+  authoredHitConnects,
+  createCombatDebugSnapshot,
+  type CombatDebugSnapshot,
+  type DebugBoxKind,
+  type FighterDebugPose,
+  type WorldCollisionBox,
+} from "./collision";
 export { hashMatchState } from "./hash";
 export { nextRandom, normalizeSeed } from "./random";
 export { runReplay } from "./replay";

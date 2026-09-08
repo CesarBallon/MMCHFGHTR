@@ -6,6 +6,11 @@ All notable player-visible and project-level changes are recorded here.
 
 ### Added
 
+- Initialized the Benita–Saja M02 combat vertical slice, tracking issue, milestone packet and pairing ADR.
+- Added the versioned M02 production animation, collision, anchor, shadow and cancel-window contract.
+- Integrated facing-aware authored collision for Benita and Saja with renderer-neutral combat-debug snapshots.
+- Added deterministic pushboxes, throws and throw techs, shared hit stop, and hit-confirm cancel execution.
+- Added Benita and Saja full-meter supers, super freeze, and normal-to-super cancels.
 - Production roadmap through public launch and live operations
 - Target architecture for deterministic online combat and trusted ranking
 - Story-route and three-boss design framework

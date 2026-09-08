@@ -26,14 +26,14 @@ The roadmap deliberately separates **combat quality**, **content**, and **networ
 
 - M0 — Prototype baseline: complete.
 - M1 — Production foundation: complete; evidence is recorded in [the M01 packet](docs/milestones/M01-production-foundation/README.md).
-- M2 — Combat vertical slice: next; fighter pairing requires approval.
+- M2 — Combat vertical slice: in progress; Benita and Saja are the approved pairing ([issue #15](https://github.com/CesarBallon/MMCHFGHTR/issues/15), [ADR 0003](docs/adr/0003-m02-benita-saja-vertical-slice.md)).
 
 ## Immediate delivery sequence
 
 1. Freeze the clean canonical B01 baseline with a tagged release in the shared GitHub repository.
 2. Write Architecture Decision Records (ADRs) for engine modularization, network transport, backend host, identity, and asset storage.
 3. Build M1 on a development branch while `main` remains playable.
-4. Select two fighters for the M2 vertical slice; avoid remaking the entire roster before the combat pipeline is proven.
+4. Complete the Benita–Saja M2 vertical slice; avoid remaking the entire roster before the combat pipeline is proven.
 5. Define the three bosses before producing their expensive animation and audio assets.
 
 ## Decisions intentionally left open
