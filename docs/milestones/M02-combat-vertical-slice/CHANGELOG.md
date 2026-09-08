@@ -4,6 +4,11 @@ Status: **In progress**
 
 ## Added
 
+- Deterministic grounded pushbox separation and airborne crossover behavior.
+- Throw input, throw/throw-reaction states, blocking immunity and simultaneous throw techs.
+- Five-frame shared hit stop with held-input buffering.
+- Executable hit-confirm-only normal-to-special cancel windows for Benita and Saja.
+- Replay/hash and interaction coverage for the new mechanics.
 - Initial validated Benita and Saja runtime combat contracts.
 - Facing-aware authored collision resolution with an explicit fallback for the other six fighters.
 - Renderer-neutral hitbox, hurtbox, pushbox, throw-range, foot-anchor and shadow debug snapshots.
