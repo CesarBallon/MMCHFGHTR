@@ -10,13 +10,15 @@
     "typecheck": "tsc --noEmit",
     "test": "npm run test:legacy && npm run typecheck && npm run test:unit",
     "test:legacy": "node --check dist/game.js && node tools/validate-project.mjs && node tools/asset-checksums.mjs",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "test:browser": "playwright test"
   },
   "engines": {
     "node": ">=24"
   },
   "packageManager": "npm@11.9.0",
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^24.13.3",
     "typescript": "^6.0.3",
     "vite": "^8.2.2",
