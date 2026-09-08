@@ -37,7 +37,7 @@ function closeWithMeter(fighter: "saja" | "benita" = "saja"): MatchState {
         x: 400 * FIXED_SCALE,
         meter: 1_000,
       },
-      { ...initial.fighters[1], x: 500 * FIXED_SCALE },
+      { ...initial.fighters[1], x: 450 * FIXED_SCALE },
     ],
   };
 }
