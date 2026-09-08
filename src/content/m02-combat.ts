@@ -114,7 +114,7 @@ function moveContract(
             {
               fromFrame: move.startupFrames,
               throughFrame: move.startupFrames + move.activeFrames - 1,
-              into: ["special"],
+              into: ["special", "super"],
               onHitOnly: true,
             },
           ]
