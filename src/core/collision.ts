@@ -67,6 +67,8 @@ function animationId(fighter: FighterState): string {
         ? "block-crouching"
         : "block-standing"
       : "block-air";
+  if (fighter.action === "throw") return "throw";
+  if (fighter.action === "thrown") return "thrown";
   if (fighter.action === "hitstun")
     return fighter.grounded ? "hit-light" : "hit-air";
   if (fighter.action === "ko") return "knockdown";
@@ -174,20 +176,20 @@ function boxesFor(
     hitId: box.hitId,
     ...worldBox(fighter, box),
   }));
-  const pushboxSource = pose.hurtboxes[0] ?? {
-    x: -1,
-    y: 0,
-    width: 2,
-    height: 160,
-  };
+  const pushboxHalfWidth =
+    fighter.fighterId === "benita"
+      ? 34
+      : fighter.fighterId === "saja"
+        ? 27
+        : 29;
   const pushbox = {
     kind: "pushbox" as const,
     fighter: fighterIndex,
     ...worldBox(fighter, {
-      x: Math.max(-24, pushboxSource.x),
-      y: pushboxSource.y,
-      width: Math.min(48, pushboxSource.width),
-      height: pushboxSource.height,
+      x: -pushboxHalfWidth,
+      y: 0,
+      width: pushboxHalfWidth * 2,
+      height: fighter.crouching ? 118 : 160,
     }),
   };
   const throwRange = {
