@@ -7,6 +7,7 @@ All notable player-visible and project-level changes are recorded here.
 ### Added
 
 - Initialized the Benita–Saja M02 combat vertical slice, tracking issue, milestone packet and pairing ADR.
+- Added the versioned M02 production animation, collision, anchor, shadow and cancel-window contract.
 - Production roadmap through public launch and live operations
 - Target architecture for deterministic online combat and trusted ranking
 - Story-route and three-boss design framework
