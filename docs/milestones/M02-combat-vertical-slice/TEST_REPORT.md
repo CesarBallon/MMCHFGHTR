@@ -1,6 +1,6 @@
 # M02 test report
 
-Status: **Not yet executed — planning baseline**
+Status: **In progress — advanced combat slice passes CI**
 
 ## Baseline
 
@@ -15,12 +15,16 @@ Status: **Not yet executed — planning baseline**
 | --- | --- | --- |
 | TypeScript | strict typecheck | Pending |
 | Determinism | identical seed and ordered inputs produce identical hashes | Pending |
-| Combat | crouch, jump, block, throw, hit stop, cancels, meter and supers | Pushboxes, throws, hit stop and normal-to-special cancels implemented; supers pending; CI pending |
+| Combat | crouch, jump, block, throw, hit stop, cancels, meter and supers | Pushboxes, throws, hit stop and normal-to-special cancels pass; supers pending |
 | Collision | authored hit resolution, mirroring, debug snapshots and Canvas projection | Implemented; CI pending |
 | Animation | state coverage, frame bounds, facing and 16+ authored-source-fps rule | Implemented; CI pending |
 | Assets | canonical provenance, transparency, dimensions and checksums | Pending |
 | Browser | Benita–Saja keyboard and controller local-versus paths | Pending |
 | Performance | fixed 60 Hz simulation and M02 render/memory budgets | Pending |
+
+## Latest automated result
+
+GitHub Actions [run 34264389372](https://github.com/CesarBallon/MMCHFGHTR/actions/runs/34264389372) passed the locked legacy validation, strict typecheck, 62 unit tests, performance budget, Chromium browser smoke suite and production build at commit `a7d995e6246495ada146c97757c14a464c1e3f79`.
 
 ## Required manual evidence
 
