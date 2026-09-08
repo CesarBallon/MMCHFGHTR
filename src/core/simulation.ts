@@ -4,6 +4,7 @@ import {
   type FighterId,
   type MoveDefinition,
 } from "../content";
+import { authoredHitConnects } from "./collision";
 import { nextRandom, normalizeSeed } from "./random";
 import {
   FIXED_SCALE,
@@ -206,11 +207,12 @@ function pendingHit(
     attacker.actionFrame >= activeEnd
   )
     return undefined;
-  const horizontalDistance = Math.abs(attacker.x - defender.x) / FIXED_SCALE;
-  const verticalDistance = Math.abs(attacker.y - defender.y) / FIXED_SCALE;
-  return horizontalDistance <= move.reach && verticalDistance <= 140
-    ? { attacker: attackerIndex, move }
-    : undefined;
+  const authoredConnection = authoredHitConnects(attacker, defender, move);
+  const connects =
+    authoredConnection ??
+    (Math.abs(attacker.x - defender.x) / FIXED_SCALE <= move.reach &&
+      Math.abs(attacker.y - defender.y) / FIXED_SCALE <= 140);
+  return connects ? { attacker: attackerIndex, move } : undefined;
 }
 
 function applyHit(
