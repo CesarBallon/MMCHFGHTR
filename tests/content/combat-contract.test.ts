@@ -84,7 +84,7 @@ describe("M02 combat-presentation contract", () => {
   });
 
   test("requires every locomotion and reaction state for M02", () => {
-    const candidate = structuredClone(contract()) as {
+    const candidate = structuredClone(contract()) as unknown as {
       animations: AnimationStateDefinition[];
     };
     candidate.animations = candidate.animations.filter(
@@ -98,7 +98,7 @@ describe("M02 combat-presentation contract", () => {
   });
 
   test("enforces at least 16 authored source frames per second", () => {
-    const candidate = structuredClone(contract()) as {
+    const candidate = structuredClone(contract()) as unknown as {
       animations: { sourceFramesPerSecond: number }[];
     };
     candidate.animations[0]!.sourceFramesPerSecond = 15;
@@ -108,7 +108,7 @@ describe("M02 combat-presentation contract", () => {
   });
 
   test("rejects fractional simulation timing and root motion", () => {
-    const candidate = structuredClone(contract()) as {
+    const candidate = structuredClone(contract()) as unknown as {
       animations: {
         frames: { durationTicks: number; rootMotionX: number }[];
       }[];
@@ -123,7 +123,7 @@ describe("M02 combat-presentation contract", () => {
   });
 
   test("requires positive collision dimensions", () => {
-    const candidate = structuredClone(contract()) as {
+    const candidate = structuredClone(contract()) as unknown as {
       animations: {
         frames: { hurtboxes: { width: number }[] }[];
       }[];
@@ -148,7 +148,7 @@ describe("M02 combat-presentation contract", () => {
   });
 
   test("binds move frame data to its matching animation state", () => {
-    const candidate = structuredClone(contract()) as {
+    const candidate = structuredClone(contract()) as unknown as {
       moves: { animationState: `move:${string}` }[];
     };
     candidate.moves[0]!.animationState = "move:hidden-shot";
@@ -158,7 +158,7 @@ describe("M02 combat-presentation contract", () => {
   });
 
   test("rejects cancel windows outside total move duration", () => {
-    const candidate = structuredClone(contract()) as {
+    const candidate = structuredClone(contract()) as unknown as {
       moves: {
         cancelWindows: { fromFrame: number; throughFrame: number }[];
       }[];
