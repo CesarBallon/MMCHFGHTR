@@ -23,6 +23,7 @@ const ROUND_OVER_FRAMES = 120;
 const ROUNDS_TO_WIN = 2;
 const METER_MAX = 1_000;
 const HIT_STOP_FRAMES = 5;
+const SUPER_FREEZE_FRAMES = 12;
 const THROW_STARTUP_FRAMES = 3;
 const THROW_TOTAL_FRAMES = 24;
 const THROW_RANGE = 96 * FIXED_SCALE;
@@ -62,6 +63,8 @@ export function createInitialState(
     ],
     previousInputs: [0, 0],
     hitStopFrames: 0,
+    superFreezeFrames: 0,
+    superFreezeOwner: null,
     phase: "fight",
     phaseFrames: 0,
     round: 1,
@@ -75,6 +78,16 @@ function moveForInput(
   definition: FighterDefinition,
   pressed: number,
 ): MoveDefinition | undefined {
+  const bothSpecials =
+    (pressed & InputFlag.Special1) !== 0 &&
+    (pressed & InputFlag.Special2) !== 0;
+  if (bothSpecials)
+    return definition.moves.find(
+      (move) =>
+        move.command.length === 2 &&
+        move.command[0] === "special1" &&
+        move.command[1] === "special2",
+    );
   const command =
     (pressed & InputFlag.Light) !== 0
       ? "light"
@@ -496,11 +509,29 @@ export function stepMatch(
       randomState: nextRandom(state.randomState),
       hitStopFrames: state.hitStopFrames - 1,
     };
+  if (state.superFreezeFrames > 0) {
+    const superFreezeFrames = state.superFreezeFrames - 1;
+    return {
+      ...state,
+      frame: state.frame + 1,
+      randomState: nextRandom(state.randomState),
+      superFreezeFrames,
+      superFreezeOwner:
+        superFreezeFrames === 0 ? null : state.superFreezeOwner,
+    };
+  }
   const moved = separatePushboxes([
     advanceFighter(state.fighters[0], inputs[0], state.previousInputs[0]),
     advanceFighter(state.fighters[1], inputs[1], state.previousInputs[1]),
   ]);
   const faced = faceOpponents(moved[0], moved[1]);
+  const superFreezeOwner = ([0, 1] as const).find((index) => {
+    const move = activeMove(faced[index]);
+    return (
+      move?.kind === "super" &&
+      state.fighters[index].action !== faced[index].action
+    );
+  });
   const throwEvents = [
     pendingThrow(faced[0], faced[1], 0),
     pendingThrow(faced[1], faced[0], 1),
@@ -529,6 +560,9 @@ export function stepMatch(
     fighters,
     previousInputs: inputs,
     hitStopFrames: impact ? HIT_STOP_FRAMES : 0,
+    superFreezeFrames:
+      superFreezeOwner === undefined ? 0 : SUPER_FREEZE_FRAMES,
+    superFreezeOwner: superFreezeOwner ?? null,
   };
   return finishRound(next, fighters);
 }
