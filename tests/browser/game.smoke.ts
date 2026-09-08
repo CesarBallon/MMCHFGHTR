@@ -57,7 +57,7 @@ test('keyboard completes the two-player local-versus selection flow', async ({ p
   await expect(status(page)).toContainText('Local versus');
 });
 
-test('a standard gamepad starts an arcade match', async ({ page }) => {
+test('a standard gamepad enters fighter selection', async ({ page }) => {
   await page.addInitScript(() => {
     const state = { connected: true };
     const buttons = Array.from({ length: 16 }, () => ({ pressed: false, touched: false, value: 0 }));
@@ -79,10 +79,6 @@ test('a standard gamepad starts an arcade match', async ({ page }) => {
   await setButton(9, true);
   await page.waitForTimeout(1_000);
   await setButton(9, false);
-  await page.waitForTimeout(250);
-  await setButton(0, true);
-  await page.waitForTimeout(1_000);
-  await setButton(0, false);
   await page.evaluate(() => (window as unknown as { __disconnectGamepad(): void }).__disconnectGamepad());
-  await expect(status(page)).toContainText('Arcade');
+  await expect(status(page)).toHaveText('Choose your fighter');
 });
