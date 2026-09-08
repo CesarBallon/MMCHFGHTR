@@ -50,6 +50,8 @@ export interface MatchState {
   fighters: readonly [FighterState, FighterState];
   previousInputs: readonly [number, number];
   hitStopFrames: number;
+  superFreezeFrames: number;
+  superFreezeOwner: 0 | 1 | null;
   phase: MatchPhase;
   phaseFrames: number;
   round: number;
