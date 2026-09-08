@@ -11,6 +11,7 @@ export const enum InputFlag {
   Special1 = 1 << 6,
   Special2 = 1 << 7,
   Block = 1 << 8,
+  Throw = 1 << 9,
 }
 
 export interface FighterState {
@@ -37,6 +38,8 @@ export type FighterAction =
   | "jump"
   | "block"
   | "hitstun"
+  | "throw"
+  | "thrown"
   | "ko"
   | `move:${string}`;
 export type MatchPhase = "fight" | "round-over" | "match-over";
@@ -46,6 +49,7 @@ export interface MatchState {
   randomState: number;
   fighters: readonly [FighterState, FighterState];
   previousInputs: readonly [number, number];
+  hitStopFrames: number;
   phase: MatchPhase;
   phaseFrames: number;
   round: number;
