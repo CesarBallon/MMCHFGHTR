@@ -92,9 +92,14 @@ describe("deterministic combat rules", () => {
     expect(hit.fighters[1].action).toBe("block");
     expect(hit.fighters[1].stunFrames).toBe(7);
     expect(hit.fighters[0].meter).toBe(6);
-    const stillBlocking = stepMatch(hit, [0, InputFlag.Block]);
-    expect(stillBlocking.fighters[1].action).toBe("block");
-    expect(stillBlocking.fighters[1].stunFrames).toBe(6);
+    const frozen = stepMatch(hit, [0, InputFlag.Block]);
+    expect(frozen.fighters[1].action).toBe("block");
+    expect(frozen.fighters[1].stunFrames).toBe(7);
+    const resumed = advance(frozen, frozen.hitStopFrames + 1, [
+      0,
+      InputFlag.Block,
+    ]);
+    expect(resumed.fighters[1].stunFrames).toBe(6);
   });
 
   test("can connect during a later active frame", () => {
