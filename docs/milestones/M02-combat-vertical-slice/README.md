@@ -43,7 +43,7 @@ Prove the final combat feel, animation pipeline and test discipline through one 
 - [ ] Required movement and combat states are complete and facing-correct.
 - [ ] Motion uses at least 16 unique authored source frames per second where required.
 - [ ] Combat simulation remains deterministic at fixed 60 Hz.
-- [ ] Throws, crouching, jumping, blocking, hit stop, cancels and supers are playable. **Pushboxes, throws, hit stop and normal-to-special hit confirms implemented; supers pending.**
+- [ ] Throws, crouching, jumping, blocking, hit stop, cancels and supers are playable. **Pushboxes, throws, hit stop, normal-to-special hit confirms, and full-meter supers with super freeze implemented in the core.**
 - [ ] Hitbox/hurtbox/pushbox/throw-range overlays are available in a debug mode.
 - [ ] Shadows remain visually attached through every grounded and airborne state.
 - [ ] Keyboard and controller smoke paths pass for Benita versus Saja.
