@@ -15,7 +15,7 @@ Status: **Not yet executed — planning baseline**
 | --- | --- | --- |
 | TypeScript | strict typecheck | Pending |
 | Determinism | identical seed and ordered inputs produce identical hashes | Pending |
-| Combat | crouch, jump, block, throw, hit stop, cancels, meter and supers | Pending |
+| Combat | crouch, jump, block, throw, hit stop, cancels, meter and supers | Pushboxes, throws, hit stop and normal-to-special cancels implemented; supers pending; CI pending |
 | Collision | authored hit resolution, mirroring, debug snapshots and Canvas projection | Implemented; CI pending |
 | Animation | state coverage, frame bounds, facing and 16+ authored-source-fps rule | Implemented; CI pending |
 | Assets | canonical provenance, transparency, dimensions and checksums | Pending |
