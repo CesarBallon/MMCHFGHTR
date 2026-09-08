@@ -108,7 +108,17 @@ function moveContract(
     startupFrames: move.startupFrames,
     activeFrames: move.activeFrames,
     recoveryFrames: move.recoveryFrames,
-    cancelWindows: [],
+    cancelWindows:
+      move.kind === "normal"
+        ? [
+            {
+              fromFrame: move.startupFrames,
+              throughFrame: move.startupFrames + move.activeFrames - 1,
+              into: ["special"],
+              onHitOnly: true,
+            },
+          ]
+        : [],
   };
 }
 
