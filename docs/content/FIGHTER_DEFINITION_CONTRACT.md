@@ -37,3 +37,8 @@ Each production fighter contract declares:
 Gameplay timing remains fixed at 60 Hz and never derives from rendering cadence. Animation source frames may span one or more simulation ticks. Collision and root-motion values use integer coordinates so the same ordered input stream remains replayable.
 
 A complete M02 fighter must provide every state in `REQUIRED_M02_ANIMATION_STATES`. Authoring tools may validate incomplete work with the explicit partial mode, but CI acceptance uses complete validation.
+
+
+### Runtime interaction semantics
+
+The M02 runtime consumes the contract rather than treating it as renderer-only metadata. Grounded pushbox dimensions prevent overlap; hitboxes mirror with facing; throw range is explicit in debug output; and cancel windows are evaluated by simulation frame. Throw is a distinct input token. Shared hit stop freezes fighter state while global deterministic time continues.
