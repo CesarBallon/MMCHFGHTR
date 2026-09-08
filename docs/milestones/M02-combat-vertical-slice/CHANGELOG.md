@@ -4,6 +4,10 @@ Status: **In progress**
 
 ## Added
 
+- Saja’s Braid Tempest and Benita’s Last Call full-meter supers.
+- Simultaneous two-special super command and atomic 1,000-meter spending.
+- Twelve-frame deterministic super freeze included in replay hashes.
+- Normal-to-super hit-confirm cancels and dedicated super tests.
 - Deterministic grounded pushbox separation and airborne crossover behavior.
 - Throw input, throw/throw-reaction states, blocking immunity and simultaneous throw techs.
 - Five-frame shared hit stop with held-input buffering.
