@@ -121,7 +121,13 @@ describe("deterministic combat rules", () => {
   test("hit stun prevents movement until it expires", () => {
     const hit = lightHit(inRange());
     const x = hit.fighters[1].x;
-    const stunned = stepMatch(hit, [0, InputFlag.Right]);
+    const frozen = advance(hit, hit.hitStopFrames, [
+      0,
+      InputFlag.Right,
+    ]);
+    expect(frozen.fighters[1].x).toBe(x);
+    expect(frozen.fighters[1].stunFrames).toBe(hit.fighters[1].stunFrames);
+    const stunned = stepMatch(frozen, [0, InputFlag.Right]);
     expect(stunned.fighters[1].x).toBe(x);
     expect(stunned.fighters[1].stunFrames).toBe(hit.fighters[1].stunFrames - 1);
   });
