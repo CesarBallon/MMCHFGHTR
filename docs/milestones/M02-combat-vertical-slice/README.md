@@ -54,7 +54,7 @@ Prove the final combat feel, animation pipeline and test discipline through one 
 ## Delivery slices
 
 1. Define animation-state, frame-data, collision and cancel contracts. **Implemented in PR #16; CI pending.**
-2. Integrate debug overlays and deterministic combat mechanics. **Core collision and debug snapshot integration implemented in PR #16; visual renderer pending.**
+2. Integrate debug overlays and deterministic combat mechanics. **Core collision, debug snapshot and Canvas overlay renderer implemented in PR #16.**
 3. Produce and validate Benita’s complete M02 atlas set.
 4. Produce and validate Saja’s complete M02 atlas set.
 5. Tune the matchup and complete keyboard/controller browser coverage.
