@@ -57,3 +57,13 @@ The remaining six fighters retain the M01 distance check until their production 
 - Inputs pressed and held during hit stop remain eligible on the first resumed frame.
 - M02 normal moves may cancel into a special only inside their authored active-frame window and only after a confirmed hit.
 - Hit stop is part of serialized match state and its replay hash.
+
+
+## M02 super rules
+
+- A super command is the rising edge of Special 1 and Special 2 on the same simulation frame.
+- Activation requires the full 1,000-point meter and spends it atomically.
+- Super startup creates 12 shared super-freeze frames. Match time and seeded randomness advance while both fighter states remain frozen.
+- Super-freeze duration and owner are serialized and hashed.
+- A held command during ordinary hit stop is evaluated on the first resumed frame, allowing an authored hit-confirm cancel into super.
+- Benita's provisional super is **Last Call**; Saja's is **Braid Tempest**. Names and balance values are M02 tuning data.
