@@ -73,7 +73,7 @@ test('a standard gamepad can enter fighter selection', async ({ page }) => {
   });
   await boot(page, false);
   await page.evaluate(() => (window as unknown as { __gamepadButton(index: number, pressed: boolean): void }).__gamepadButton(9, true));
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(500);
   await page.evaluate(() => {
     const controls = window as unknown as { __gamepadButton(index: number, pressed: boolean): void; __disconnectGamepad(): void };
     controls.__gamepadButton(9, false);

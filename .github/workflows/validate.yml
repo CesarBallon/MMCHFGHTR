@@ -28,8 +28,6 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: playwright-failure-artifacts
-          path: |
-            test-results/
-            playwright-report/
+          path: test-results/
           if-no-files-found: ignore
           retention-days: 7

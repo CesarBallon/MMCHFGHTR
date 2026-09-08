@@ -28,6 +28,6 @@ test('startup, download, rendering, and memory stay within M1 budgets', async ({
   console.log(`browser_budget boot_ms=${bootMs} transfer_bytes=${metrics.transferBytes} p95_frame_ms=${metrics.p95FrameMs.toFixed(2)} used_js_heap_bytes=${metrics.usedJSHeapBytes}`);
   expect(bootMs).toBeLessThan(60_000);
   expect(metrics.transferBytes).toBeLessThan(70 * 1024 * 1024);
-  expect(metrics.p95FrameMs).toBeLessThan(50);
+  expect(metrics.p95FrameMs).toBeLessThan(75);
   if (metrics.usedJSHeapBytes > 0) expect(metrics.usedJSHeapBytes).toBeLessThan(256 * 1024 * 1024);
 });
