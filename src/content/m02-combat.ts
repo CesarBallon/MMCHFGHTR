@@ -4,9 +4,9 @@ import {
   type AnimationFrameDefinition,
   type AnimationStateDefinition,
   type FighterCombatContract,
-  type FighterId,
   type ProductionMoveContract,
-} from "./index";
+} from "./combat-contract";
+import type { FighterId } from "./fighter-schema";
 import { FIGHTERS_BY_ID } from "./fighters";
 
 const SOURCE_FPS = 16;
