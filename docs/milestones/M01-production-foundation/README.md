@@ -3,7 +3,7 @@
 Status: **Complete**
 Tracking issue: [#6](https://github.com/CesarBallon/MMCHFGHTR/issues/6)
 Base: `64cb5af5147252fcd9b2a82dd8b2718e7368fd29`
-Closeout evidence: PR [#13](https://github.com/CesarBallon/MMCHFGHTR/pull/13), run [#19](https://github.com/CesarBallon/MMCHFGHTR/actions/runs/34252469335), commit `440023173e5426916b33a203431fb158e3ab4c5d`
+Closeout evidence: PR [#13](https://github.com/CesarBallon/MMCHFGHTR/pull/13), run [#21](https://github.com/CesarBallon/MMCHFGHTR/actions/runs/34253529830), commit `e1d2085875d5981ca79672f55fa01cb7e558b2fd`
 
 ## Goal
 
@@ -46,7 +46,7 @@ Convert the playable Canvas prototype into a modular, testable and deterministic
 
 ## Verified performance sample
 
-GitHub Actions run #19 recorded 20,000 simulation frames in 16.37 ms; browser boot in 11,529 ms; 58,853,660 transferred startup bytes; 33.40 ms p95 render-frame interval; and 29,400,000 bytes of used JavaScript heap. These are regression measurements from a shared CI runner, not minimum-device certification.
+GitHub Actions run #21 recorded 20,000 simulation frames in 22.47 ms; browser boot in 7,425 ms; 58,853,660 transferred startup bytes; 33.30 ms p95 render-frame interval; and 21,700,000 bytes of used JavaScript heap. These are regression measurements from a shared CI runner, not minimum-device certification.
 
 ## Rollback
 
