@@ -16,8 +16,8 @@ Status: **Not yet executed — planning baseline**
 | TypeScript | strict typecheck | Pending |
 | Determinism | identical seed and ordered inputs produce identical hashes | Pending |
 | Combat | crouch, jump, block, throw, hit stop, cancels, meter and supers | Pending |
-| Collision | hitbox, hurtbox, pushbox and throw-range rules | Pending |
-| Animation | state coverage, frame bounds, facing and 16+ authored-source-fps rule | Pending |
+| Collision | versioned per-frame hitbox/hurtbox contract validation | Implemented; CI pending |
+| Animation | state coverage, frame bounds, facing and 16+ authored-source-fps rule | Implemented; CI pending |
 | Assets | canonical provenance, transparency, dimensions and checksums | Pending |
 | Browser | Benita–Saja keyboard and controller local-versus paths | Pending |
 | Performance | fixed 60 Hz simulation and M02 render/memory budgets | Pending |
