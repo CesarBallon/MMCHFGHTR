@@ -6,6 +6,7 @@ All notable player-visible and project-level changes are recorded here.
 
 ### Added
 
+- Initialized the Benita–Saja M02 combat vertical slice, tracking issue, milestone packet and pairing ADR.
 - Production roadmap through public launch and live operations
 - Target architecture for deterministic online combat and trusted ranking
 - Story-route and three-boss design framework
