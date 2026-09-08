@@ -46,3 +46,14 @@ Benita and Saja resolve hits from their validated per-frame combat contracts. Lo
 The remaining six fighters retain the M01 distance check until their production contracts are authored. This fallback is explicit and covered by tests; it prevents M02 from silently changing the rest of the roster.
 
 `createCombatDebugSnapshot` exposes a read-only, renderer-neutral view of each fighter's current animation state, source frame, foot anchor, attached shadow, hurtboxes, hitboxes, pushbox and throw range. Debug visualization consumes this snapshot without mutating match state, so enabling overlays cannot change a replay hash or combat result.
+
+
+## M02 advanced interaction rules
+
+- Grounded pushboxes separate overlapping fighters symmetrically using fixed-scale integer positions. Airborne crossing remains legal.
+- Throw is a rising-edge input. A throw connects only against an in-range grounded opponent, ignores normal blocking, and enters authored `throw`/`thrown` states.
+- Simultaneous valid throws produce a deterministic throw tech with no damage.
+- A successful strike or throw starts five shared hit-stop frames. Match time and seeded randomness advance, while fighter actions, movement and stun remain frozen.
+- Inputs pressed and held during hit stop remain eligible on the first resumed frame.
+- M02 normal moves may cancel into a special only inside their authored active-frame window and only after a confirmed hit.
+- Hit stop is part of serialized match state and its replay hash.
