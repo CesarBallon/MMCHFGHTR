@@ -399,6 +399,8 @@
   }
 
   function updateFighter(f,o,c,dt){
+    const facingLocked=AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0||f.stun>0;
+    if(!facingLocked)f.facing=o.x>=f.x?1:-1;
     f.cool=Math.max(0,f.cool-dt);f.timer=Math.max(0,f.timer-dt);f.stun=Math.max(0,f.stun-dt);f.flash=Math.max(0,f.flash-dt);f.block=!!c.block&&f.stun<=0;f.crouching=false;
     if(f.stun<=0&&f.cool<=0&&match.state==='fight'){
       if(c.pressed?.light)melee(f,o,'light');else if(c.pressed?.heavy)melee(f,o,'heavy');else if(c.pressed?.sp1)special(f,o,1);else if(c.pressed?.sp2)special(f,o,2);
@@ -408,9 +410,10 @@
     if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
     if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
-    f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded)f.action=f.block?'block':'idle';
+    f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded)f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';
     if(f.grounded&&c.down&&f.stun<=0&&f.cool<=0){f.crouching=true;f.action='crouch'}
-    f.facing=o.x>=f.x?1:-1;f.trail.unshift({x:f.x,y:f.y,frame:f.animFrame||0});if(f.trail.length>6)f.trail.pop();
+    if(!((AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0))f.facing=o.x>=f.x?1:-1;
+    f.trail.unshift({x:f.x,y:f.y,frame:f.animFrame||0});if(f.trail.length>6)f.trail.pop();
   }
 
   function updateProjectiles(dt){

@@ -211,6 +211,8 @@ function pendingHit(
     attacker.actionFrame >= activeEnd
   )
     return undefined;
+  // A locked attack cannot connect through the attacker's back.
+  if ((defender.x - attacker.x) * attacker.facing < 0) return undefined;
   const horizontalDistance = Math.abs(attacker.x - defender.x) / FIXED_SCALE;
   const verticalDistance = Math.abs(attacker.y - defender.y) / FIXED_SCALE;
   return horizontalDistance <= move.reach && verticalDistance <= 140
