@@ -285,7 +285,7 @@
     const action=ACTION_ALIASES[f.d.id]?.[f.action]||f.action,clip=ACTION_CLIPS[action]||ACTION_CLIPS.idle,im=images['action_'+f.d.id+'_'+clip.atlas];if(!im)return false;
     let position;
     if(clip.airborne){const normalized=Math.max(0,Math.min(1,(f.vy+f.d.jump)/(f.d.jump+13)));position=normalized*(clip.count-1)}
-    else if(clip.loop)position=globalTime*clip.fps;
+    else if(clip.loop)position=globalTime*clip.fps*(action==='walk'?f.d.speed/4.4:1);
     else{const duration=f.actionDuration||clip.duration||.4;position=Math.max(0,Math.min(clip.count-1,(duration-f.timer)/duration*(clip.count-1)))}
     const local=Math.floor(position),frame=((local%clip.count)+clip.count)%clip.count,next=clip.loop?(frame+1)%clip.count:Math.min(clip.count-1,frame+1),rawMix=position-Math.floor(position),mix=rawMix*rawMix*(3-2*rawMix);
     drawSheet(im,[4,4],clip.start+frame,f.x,f.y,f.d.size,f.facing,alpha*(1-mix));
@@ -350,7 +350,7 @@
   }
 
   function rects(a,b){return a.x<a.w+b.x&&a.x+a.w>b.x&&a.y<a.h+b.y&&a.y+a.h>b.y}
-  function hurtbox(f){const wide=(f.d.id==='benita'||f.d.id==='shabuka')?104:82,height=f.crouching?142:232;return{x:f.x-wide/2,y:f.y-height-6,w:wide,h:height}}
+  function hurtbox(f){const scale=f.d.size/310,wide=((f.d.id==='benita'||f.d.id==='shabuka')?104:82)*scale,height=(f.crouching?142:232)*scale;return{x:f.x-wide/2,y:f.y-height-6,w:wide,h:height}}
   function addParticles(x,y,color,n=12,power=5){for(let i=0;i<n;i++)match.particles.push({x,y,vx:(Math.random()*2-1)*power,vy:(Math.random()*-1)*power-1,life:.25+Math.random()*.35,color,size:3+Math.random()*7})}
   function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false){
     if(defender.stun>0&&attacker.attackId===defender.lastHit)return false;defender.lastHit=attacker.attackId;
@@ -362,8 +362,8 @@
   }
 
   function melee(f,o,kind){
-    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',reach=stretch?250:heavy?112:78,damage=heavy?11:6;f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
-    const hb={x:f.facing>0?f.x+20:f.x-reach-20,y:f.y-(heavy?132:118),w:reach,h:heavy?86:65};
+    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310,reach=(stretch?250:heavy?112:78)*scale,damage=heavy?11:6;f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+    const hb={x:f.facing>0?f.x+20:f.x-reach-20,y:f.y-(heavy?132:118)*scale,w:reach,h:(heavy?86:65)*scale};
     if(rects(hb,hurtbox(o)))hit(f,o,damage,heavy?8:4,heavy?-5:-2,heavy?.38:.2,f.d.accent);
   }
   function projectile(f,opts={}){match.projectiles.push({owner:f,x:f.x+f.facing*60,y:f.y-(opts.y||105),vx:f.facing*(opts.speed||8),vy:opts.vy||0,w:opts.w||50,h:opts.h||28,life:opts.life||1.7,damage:opts.damage||10,kind:opts.kind||'wave',color:opts.color||f.d.accent,returning:opts.returning||false,stun:opts.stun||false,age:0});sfx('projectile',opts.kind==='bullet'?1.28:1);}
@@ -373,7 +373,7 @@
     if(n===1){
       if(k==='whip'){const hb={x:f.facing>0?f.x+20:f.x-250,y:f.y-135,w:250,h:70};if(rects(hb,hurtbox(o)))hit(f,o,13,7,-3,.3,'#ff5ed0');match.projectiles.push({owner:f,x:f.x,y:f.y-115,vx:0,vy:0,w:250,h:10,life:.22,damage:0,kind:'whip',color:'#ff5ed0',age:0})}
       else if(k==='heavy'){for(let i=0;i<18;i++)match.particles.push({x:f.x+f.facing*45,y:f.y-110,vx:f.facing*(4+Math.random()*8),vy:(Math.random()-.5)*4,life:.5,color:'#f7be52',size:4+Math.random()*5});projectile(f,{kind:'beer',speed:6,w:130,h:70,damage:9,life:.65,color:'#f7be52'})}
-      else if(k==='rush'){f.action='roll';f.timer=.75;f.vx=f.facing*13;const hb={x:Math.min(f.x,o.x),y:f.y-100,w:Math.abs(o.x-f.x)+80,h:100};if(Math.abs(o.x-f.x)<260)hit(f,o,14,10,-5,.35,'#4ba6ff')}
+      else if(k==='rush'){f.action='roll';f.timer=.75;f.vx=f.facing*13;if(Math.abs(o.x-f.x)<260)hit(f,o,14,10,-5,.35,'#4ba6ff')}
       else if(k==='stretch'){projectile(f,{kind:'sound',speed:5,w:105,h:85,damage:5,stun:true,color:'#ff79c8'})}
       else if(k==='power'){projectile(f,{kind:'pom',speed:7,w:62,h:62,damage:13,color:'#bd49ff'})}
       else if(k==='staff'){projectile(f,{kind:'note',speed:5.5,w:70,h:70,damage:5,stun:true,color:'#f7ef7b'})}
@@ -382,7 +382,7 @@
     }else{
       if(k==='whip')projectile(f,{kind:'wave',speed:7.5,w:90,h:65,damage:12,color:'#e84ef1'});
       else if(k==='heavy')projectile(f,{kind:'bullet',speed:17,w:34,h:10,damage:16,color:'#ffe39a'});
-      else if(k==='rush'){f.action='jumpattack';f.timer=.8;f.vy=-14;f.vx=f.facing*9;if(Math.abs(o.x-f.x)<210)setTimeout(()=>{},0)}
+      else if(k==='rush'){f.action='jumpattack';f.timer=.8;f.vy=-14;f.vx=f.facing*9}
       else if(k==='stretch')projectile(f,{kind:'diaper',speed:6.5,vy:-4,w:52,h:45,damage:12,color:'#d8d0a8'});
       else if(k==='power'){f.action='uppercut';f.timer=.72;f.actionDuration=.72;f.vy=-12;f.vx=f.facing*4;if(Math.abs(o.x-f.x)<125)hit(f,o,17,7,-10,.45,'#b54bff')}
       else if(k==='staff')projectile(f,{kind:'mic',speed:8,w:65,h:28,damage:12,returning:true,color:'#e6e4dc'});
@@ -392,8 +392,9 @@
     sfx('special',n===1?1.06:.91,.85);
   }
 
+  const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut'];
   function aiControls(f,o,dt){
-    f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;f.ai={left:dist<-95,right:dist>95,up:Math.random()<.035,block:o.action.includes('attack')&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{}};if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
+    f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
     return f.ai||{pressed:{}};
   }
 
