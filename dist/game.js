@@ -349,26 +349,61 @@
     screen='fight';playMusic(roundMusic(1),true);sfx('round');document.querySelector('#status').textContent=match.stage.name;
   }
 
-  function rects(a,b){return a.x<a.w+b.x&&a.x+a.w>b.x&&a.y<a.h+b.y&&a.y+a.h>b.y}
+  function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
   function hurtbox(f){const scale=f.d.size/310,wide=((f.d.id==='benita'||f.d.id==='shabuka')?104:82)*scale,height=(f.crouching?142:232)*scale;return{x:f.x-wide/2,y:f.y-height-6,w:wide,h:height}}
   function addParticles(x,y,color,n=12,power=5){for(let i=0;i<n;i++)match.particles.push({x,y,vx:(Math.random()*2-1)*power,vy:(Math.random()*-1)*power-1,life:.25+Math.random()*.35,color,size:3+Math.random()*7})}
-  function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false){
+  function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false,guardType='mid'){
+    if(defender.wakeupInvincible)return false;
     if(defender.stun>0&&attacker.attackId===defender.lastHit)return false;defender.lastHit=attacker.attackId;
-    const blocked=defender.block&&defender.grounded&&Math.sign(attacker.x-defender.x)===defender.facing;
-    damage*=attacker.d.power/defender.d.defense;defender.hp=Math.max(0,defender.hp-damage*(blocked?.24:1));defender.vx=kx*Math.sign(defender.x-attacker.x)*(blocked?.35:1);defender.vy=blocked?0:ky;defender.stun=forceStun?1.3:(blocked?.11:stun);defender.action=blocked?'block':'hurt';defender.actionDuration=defender.stun;defender.flash=.12;attacker.meter=Math.min(100,attacker.meter+damage*2);attacker.combo++;
-    addParticles(defender.x,defender.y-95,blocked?'#76e5ff':color,blocked?7:15,blocked?3:6);match.shake=Math.max(match.shake,blocked?4:9);match.hitstop=blocked?.035:.07;sfx(blocked?'block':damage>=12?'heavy':'hit',.94+Math.random()*.1);
+    const guardOk=guardType==='overhead'?!defender.crouching:guardType==='low'?defender.crouching:true;
+    const blocked=defender.block&&defender.grounded&&guardOk&&Math.sign(attacker.x-defender.x)===defender.facing;
+    const chain=blocked?(defender.hitsTaken||0):(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
+    const comboScale=blocked?1:Math.max(.5,1-.1*(chain-1));
+    damage*=attacker.d.power/defender.d.defense*comboScale;
+    const weight=Math.max(.6,Math.min(1.6,damage/10));
+    const knockDir=Math.sign(defender.x-attacker.x)||1;
+    defender.hp=Math.max(0,defender.hp-damage*(blocked?.24:1));defender.vx=kx*knockDir*(blocked?.35:1);attacker.vx=-kx*knockDir*(blocked?.5:.25);defender.vy=blocked?0:ky;
+    if(!blocked&&!defender.grounded)defender.knockdown=true;
+    defender.stun=forceStun?1.3:(blocked?.11:stun);defender.action=blocked?'block':'hurt';defender.actionDuration=defender.stun;defender.flash=.12;attacker.meter=Math.min(100,attacker.meter+damage*2);attacker.combo=chain;
+    addParticles(defender.x,defender.y-95,blocked?'#76e5ff':color,blocked?Math.round(7*weight):Math.round(15*weight),blocked?3:Math.round(6*weight));
+    match.shake=Math.max(match.shake,(blocked?4:7)*weight);match.hitstop=Math.max(match.hitstop,(blocked?.03:.045)*weight);
+    sfx(blocked?'block':damage>=12?'heavy':'hit',.94+Math.random()*.1);
     if(defender.hp<=0){match.state='ko';match.stateTime=2.5;match.winner=attacker;attacker.rounds++;sfx('ko')}
     return true;
   }
 
-  function melee(f,o,kind){
-    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310,reach=(stretch?250:heavy?112:78)*scale,damage=heavy?11:6;f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
-    const hb={x:f.facing>0?f.x+20:f.x-reach-20,y:f.y-(heavy?132:118)*scale,w:reach,h:(heavy?86:65)*scale};
-    if(rects(hb,hurtbox(o)))hit(f,o,damage,heavy?8:4,heavy?-5:-2,heavy?.38:.2,f.d.accent);
+  const REVERSAL_WINDOW=.12;
+  function canAct(f){return (f.stun<=0&&f.cool<=0)||(f.action==='down'&&f.timer>0&&f.timer<=REVERSAL_WINDOW)}
+  function melee(f,kind,crouching,airborne){
+    f.wakeupInvincible=false;
+    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310;
+    f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;f.hitResolved=false;
+    f.atkStartup=heavy?.09:.05;f.atkActiveEnd=f.atkStartup+(heavy?.1:.07);
+    f.atkReach=(stretch?250:heavy?112:78)*scale;f.atkYOffset=(heavy?132:118)*scale;f.atkH=(heavy?86:65)*scale;
+    f.atkDamage=heavy?11:6;f.atkKx=heavy?8:4;f.atkKy=heavy?-5:-2;f.atkStun=heavy?.38:.2;
+    f.atkGuardType=airborne?'overhead':(crouching?'low':'mid');
+    sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+  }
+  function resolveMeleeHit(f,o){
+    if((f.action!=='light'&&f.action!=='heavy')||f.hitResolved)return;
+    const elapsed=f.actionDuration-f.timer;
+    if(elapsed<f.atkStartup||elapsed>=f.atkActiveEnd)return;
+    const hb={x:f.facing>0?f.x+20:f.x-f.atkReach-20,y:f.y-f.atkYOffset,w:f.atkReach,h:f.atkH};
+    if(rects(hb,hurtbox(o))){hit(f,o,f.atkDamage,f.atkKx,f.atkKy,f.atkStun,f.d.accent,false,f.atkGuardType);f.hitResolved=true}
+  }
+  function throwAttempt(f,o){
+    f.wakeupInvincible=false;
+    const range=90*(f.d.size/310),inRange=Math.abs(o.x-f.x)<=range&&Math.abs(o.y-f.y)<=40&&o.grounded&&f.grounded;
+    f.action='throw';f.timer=inRange?.5:.3;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;
+    if(!inRange)return;
+    o.action='thrown';o.timer=.6;o.actionDuration=.6;o.cool=.6;o.stun=.6;o.grounded=false;o.vy=-6;o.vx=f.facing*7;
+    o.hp=Math.max(0,o.hp-8);o.knockdown=true;o.lastHit=f.attackId;f.meter=Math.min(100,f.meter+10);
+    addParticles(o.x,o.y-100,'#ffe27a',10,5);match.shake=Math.max(match.shake,6);sfx('heavy',.9,.9);
+    if(o.hp<=0){match.state='ko';match.stateTime=2.5;match.winner=f;f.rounds++;sfx('ko')}
   }
   function projectile(f,opts={}){match.projectiles.push({owner:f,x:f.x+f.facing*60,y:f.y-(opts.y||105),vx:f.facing*(opts.speed||8),vy:opts.vy||0,w:opts.w||50,h:opts.h||28,life:opts.life||1.7,damage:opts.damage||10,kind:opts.kind||'wave',color:opts.color||f.d.accent,returning:opts.returning||false,stun:opts.stun||false,age:0});sfx('projectile',opts.kind==='bullet'?1.28:1);}
   function special(f,o,n){
-    if(f.cool>0||f.stun>0)return;f.attackId++;f.combo=0;f.action=n===1?'special1':'special2';f.timer=.65;f.actionDuration=.65;f.cool=.55;
+    if(!canAct(f))return;f.wakeupInvincible=false;f.attackId++;f.combo=0;f.action=n===1?'special1':'special2';f.timer=.65;f.actionDuration=.65;f.cool=.55;
     const k=f.d.kind;
     if(n===1){
       if(k==='whip'){const hb={x:f.facing>0?f.x+20:f.x-250,y:f.y-135,w:250,h:70};if(rects(hb,hurtbox(o)))hit(f,o,13,7,-3,.3,'#ff5ed0');match.projectiles.push({owner:f,x:f.x,y:f.y-115,vx:0,vy:0,w:250,h:10,life:.22,damage:0,kind:'whip',color:'#ff5ed0',age:0})}
@@ -392,27 +427,39 @@
     sfx('special',n===1?1.06:.91,.85);
   }
 
-  const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut'];
+  const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut','throw'];
+  function isFacingLocked(f){return (AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0}
   function aiControls(f,o,dt){
-    f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
+    f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<90){const r=Math.random();if(r<.14){f.ai.pressed.light=true;f.ai.pressed.heavy=true}else if(r<.5)f.ai.pressed.light=true;else if(r<.76)f.ai.pressed.heavy=true;else if(r<.9)f.ai.pressed.sp1=true;else f.ai.pressed.sp2=true}else if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
     return f.ai||{pressed:{}};
   }
 
   function updateFighter(f,o,c,dt){
-    const facingLocked=AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0||f.stun>0;
-    if(!facingLocked)f.facing=o.x>=f.x?1:-1;
+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+    const wasCrouching=f.crouching,wasGrounded=f.grounded;
     f.cool=Math.max(0,f.cool-dt);f.timer=Math.max(0,f.timer-dt);f.stun=Math.max(0,f.stun-dt);f.flash=Math.max(0,f.flash-dt);f.block=!!c.block&&f.stun<=0;f.crouching=false;
-    if(f.stun<=0&&f.cool<=0&&match.state==='fight'){
-      if(c.pressed?.light)melee(f,o,'light');else if(c.pressed?.heavy)melee(f,o,'heavy');else if(c.pressed?.sp1)special(f,o,1);else if(c.pressed?.sp2)special(f,o,2);
+    const BUF=.08;
+    f.bufThrow=(c.pressed?.light&&c.pressed?.heavy)?BUF:Math.max(0,(f.bufThrow||0)-dt);
+    f.bufLight=c.pressed?.light?BUF:Math.max(0,(f.bufLight||0)-dt);
+    f.bufHeavy=c.pressed?.heavy?BUF:Math.max(0,(f.bufHeavy||0)-dt);
+    f.bufSp1=c.pressed?.sp1?BUF:Math.max(0,(f.bufSp1||0)-dt);
+    f.bufSp2=c.pressed?.sp2?BUF:Math.max(0,(f.bufSp2||0)-dt);
+    if(canAct(f)&&match.state==='fight'){
+      if(f.bufThrow>0){f.bufThrow=0;f.bufLight=0;f.bufHeavy=0;throwAttempt(f,o);}
+      else if(f.bufLight>0){f.bufLight=0;melee(f,'light',wasCrouching,!wasGrounded);}
+      else if(f.bufHeavy>0){f.bufHeavy=0;melee(f,'heavy',wasCrouching,!wasGrounded);}
+      else if(f.bufSp1>0){f.bufSp1=0;special(f,o,1);}
+      else if(f.bufSp2>0){f.bufSp2=0;special(f,o,2);}
       else if(c.down&&f.grounded){f.crouching=true;f.vx*=.5;f.action='crouch'}
       else{const dir=(c.right?1:0)-(c.left?1:0);f.vx+=dir*f.d.speed*.34;f.vx=Math.max(-f.d.speed,Math.min(f.d.speed,f.vx));if(dir)f.action='walk';else if(f.grounded)f.action=f.block?'block':'idle';if(c.pressed?.up&&f.grounded){f.vy=-f.d.jump;f.grounded=false;f.action='jump';f.actionDuration=.7;sfx('jump')}}
     }
+    resolveMeleeHit(f,o);
     if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
-    if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
-    f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded)f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';
+    if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.knockdown){f.knockdown=false;f.action='down';f.timer=.5;f.actionDuration=.5;f.cool=.5;f.stun=.5;f.wakeupInvincible=true}else if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+    f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded){f.wakeupInvincible=false;f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';}
     if(f.grounded&&c.down&&f.stun<=0&&f.cool<=0){f.crouching=true;f.action='crouch'}
-    if(!((AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0))f.facing=o.x>=f.x?1:-1;
+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
     f.trail.unshift({x:f.x,y:f.y,frame:f.animFrame||0});if(f.trail.length>6)f.trail.pop();
   }
 
@@ -485,3 +532,4 @@
   loadAll().catch(err=>{console.error(err);document.querySelector('#loading').innerHTML='<b>ASSET LOAD FAILED</b><small>Refresh to try again.</small>'});
   requestAnimationFrame(loop);
 })();
+
