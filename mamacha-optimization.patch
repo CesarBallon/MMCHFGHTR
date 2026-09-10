@@ -1,0 +1,1849 @@
+diff --git a/dist/game.js b/dist/game.js
+index 21638b9..a9fd4ec 100644
+--- a/dist/game.js
++++ b/dist/game.js
+@@ -343,14 +343,20 @@
+     const im=images['idle_'+def.id],meta=sheetMeta.get(im),duration=2.8,total=12;
+     const position=((globalTime+phase)%duration)/duration*total,frame=Math.floor(position)%total,next=(frame+1)%total;
+     const rawMix=position-Math.floor(position),mix=rawMix*rawMix*(3-2*rawMix);
+-    idleCtx.setTransform(1,0,0,1,0,0);idleCtx.globalCompositeOperation='source-over';idleCtx.clearRect(0,0,W,H);
++    const scale=Math.min(height/meta.maxH,maxWidth/meta.maxW);
++    const boundsFor=(fi)=>{const fm=meta.frames[fi],left=-fm.anchorX*scale,top=-fm.bottom*scale,right=left+fm.sw*scale,bottom=top+fm.sh*scale,lx=Math.min(left*face,right*face),rx=Math.max(left*face,right*face);return{l:x+lx,r:x+rx,t:y+top,b:y+bottom}};
++    const b1=boundsFor(frame),b2=boundsFor(next),pad=4;
++    const cx=Math.max(0,Math.floor(Math.min(b1.l,b2.l)-pad)),cy=Math.max(0,Math.floor(Math.min(b1.t,b2.t)-pad));
++    const cw=Math.min(W,Math.ceil(Math.max(b1.r,b2.r)+pad))-cx,ch=Math.min(H,Math.ceil(Math.max(b1.b,b2.b)+pad))-cy;
++    idleCtx.setTransform(1,0,0,1,0,0);idleCtx.globalCompositeOperation='source-over';
++    if(cw>0&&ch>0)idleCtx.clearRect(cx,cy,cw,ch);
+     const draw=(frameIndex,opacity,blend=false)=>{
+-      const fm=meta.frames[frameIndex],scale=fitVisible?Math.min(height/meta.maxH,maxWidth/meta.maxW):Math.min(height/meta.maxH,maxWidth/meta.maxW);
+-      const anchorX=fm.anchorX;
++      const fm=meta.frames[frameIndex],anchorX=fm.anchorX;
+       idleCtx.save();idleCtx.globalCompositeOperation=blend?'lighter':'source-over';idleCtx.globalAlpha=alpha*opacity;idleCtx.translate(x,y);idleCtx.scale(face,1);idleCtx.imageSmoothingEnabled=true;idleCtx.imageSmoothingQuality='high';
+       idleCtx.drawImage(im,fm.sx,fm.sy,fm.sw,fm.sh,-anchorX*scale,-fm.bottom*scale,fm.sw*scale,fm.sh*scale);idleCtx.restore();
+     };
+-    draw(frame,1-mix);draw(next,mix,true);ctx.drawImage(idleCanvas,0,0);
++    draw(frame,1-mix);draw(next,mix,true);
++    if(cw>0&&ch>0)ctx.drawImage(idleCanvas,cx,cy,cw,ch,cx,cy,cw,ch);
+   }
+   function drawIdleShadow(def,x,y,height,maxWidth=Infinity,alpha=.34,phase=0,fitVisible=false){
+     const meta=sheetMeta.get(images['idle_'+def.id]),scale=Math.min(height/meta.maxH,maxWidth/meta.maxW),visibleW=meta.maxW;
+diff --git a/docs/assets/SHA256SUMS.txt b/docs/assets/SHA256SUMS.txt
+index d548e81..41dbeb8 100644
+--- a/docs/assets/SHA256SUMS.txt
++++ b/docs/assets/SHA256SUMS.txt
+@@ -20,38 +20,38 @@ d426d1f9b901b1047b26f70e518c108cbef3701cb46bf720756f6a21e80e36a4  dist/assets/au
+ 9ed51e9e568edc7c2ccd961f48206b152b70b57d1965343870989eb8db70b9b5  dist/assets/audio/soundtrack/MariachayTheme.mp3
+ 2d95ddf816916027b3b5951651e9b118fc31e105e1a48423d929e68db34c4555  dist/assets/audio/soundtrack/SajaTheme.mp3
+ b3aa8f12e48c34ea11eab3f37b56a99937c94a677351fb39548db8adc5259de8  dist/assets/audio/soundtrack/ShabukaTheme.mp3
+-73866d5b66674c7a78b7ad00e42eab449b0ec8386406c3f155b9fa2e3008828b  dist/assets/fighters/actions/asunta/baby-shriek.webp
+-ea30f0c8af7b9b215c3dd22f812b1046eaebf8e301b8390a72b6992efb4a6c2f  dist/assets/fighters/actions/asunta/combat.webp
+-0af76b341ef0d8c0ba579279d5293632a74f544c4db1bc5f70148d44c1a5e1da  dist/assets/fighters/actions/asunta/diaper-toss.webp
+-c5e7245226e2e27228c98c993697ebf0c2a72898a670a25e63ec4a3a4856e3d2  dist/assets/fighters/actions/asunta/locomotion.webp
+-0c6b6dce6b765900cbb12ac0d1d7c51f01bf5c6a697eb45ea0cbaf14537d68f0  dist/assets/fighters/actions/bella/combat.webp
+-c3faa38f82cd90105e56dcdd4e6219548efbea8da0015cc5d40e02a28e53c442  dist/assets/fighters/actions/bella/high-note.webp
+-e4d2744abc95064ddce6f3ba12f4f718fa0df82bc2b9522b9844ca979adb4400  dist/assets/fighters/actions/bella/locomotion.webp
+-9fe37795db1b37cf1ff277dd2e05afbb612abc7b16bc6950bb73d4cf1739dc13  dist/assets/fighters/actions/bella/mic-return.webp
+-7ef4ea6c71a2ca2c816469e0ec26725f6f48d90e1e30447e00915ad3dea837d0  dist/assets/fighters/actions/benita/beer-bath.webp
+-5c438fc212176b409a53cb436b6ffe1c3c64a7da9238fbe5ccf0a47af2aa7a92  dist/assets/fighters/actions/benita/combat.webp
+-4c47be711d6895619226349e6e3d71ddbbfa236739e3097b8e6293028270b5c5  dist/assets/fighters/actions/benita/locomotion.webp
+-db9154e1d4a0777ffe4c09fe96716dd6e29761b15a6428df091a2cd0c2070a85  dist/assets/fighters/actions/benita/revolver.webp
+-d7d66ec4a151f6a3122b43895f23bcaa5e30f138f6e9d90fcd4f41287c6b53bb  dist/assets/fighters/actions/coraima/combat.webp
+-804618f130d88d76a25609bf8975884edb36b069e8bb18f147ad623ca8b04633  dist/assets/fighters/actions/coraima/flying-kiss.webp
+-128eeadb0fb165f87c5384ab23f747083ca636b76ebcc9253288da0488151290  dist/assets/fighters/actions/coraima/locomotion.webp
+-c4d2448130626c147098df02655194587dd975a5c830a05a59190ea1787d1da4  dist/assets/fighters/actions/coraima/tornado-heel.webp
+-fce3254d4fd404c1ac1daa21ef47e3225c57e3d0be78565f47ba5a5d8145a638  dist/assets/fighters/actions/jarjacha/combat.webp
+-0521e768466a8c7c323478bf9f6782f26dca792d5b462d8b219f36d477b97071  dist/assets/fighters/actions/jarjacha/dizzy-hands.webp
+-1896c0a437982abd27d0b55ba3907a13672b8b0da23646145a87127cb5d8674a  dist/assets/fighters/actions/jarjacha/locomotion.webp
+-2872fb3fed0258314aa31b79c9d4d517f1cdad6c58244d0521ebd69a69dae018  dist/assets/fighters/actions/jarjacha/sandal-return.webp
+-4e025dc1d56d0ef3ef46ad731fc073b0b6f9c5781bacb3d82a1e653d3cb69689  dist/assets/fighters/actions/mariachay/combat.webp
+-2b028d67d3c1473f6e8b473ec5c6cf263c5a09a2d0d4a9307585e4f7c34996a1  dist/assets/fighters/actions/mariachay/locomotion.webp
+-7d44c85aff5991ae62e914a945ce0d03167442c8b2b0d909cccd5ea3f1b6e2c1  dist/assets/fighters/actions/mariachay/rolling-rush.webp
+-21ec6c3f9bd4aff09ebf0ddfd2c1ec977e169710cd5c9497ad884510f2a6b5f0  dist/assets/fighters/actions/mariachay/sky-slap.webp
+-fe34cb0feb1cac8d1b8839dd326b67361cc42a9f63a64224e2ab4e6929e850aa  dist/assets/fighters/actions/saja/braid-lash.webp
+-86d13d1442c1fdda597d40c8c74993e3573c7224e3e6041ac701529b97008d5e  dist/assets/fighters/actions/saja/combat.webp
+-6d897c28a7b34dfca358bf535fe45665864a229b86b0e6a0fb05ffcb5e5918d4  dist/assets/fighters/actions/saja/locomotion.webp
+-723c63d4e30a60e5ed4e4bd6e5ee2e2eb3835245c82b72d35e8f31d71ac92619  dist/assets/fighters/actions/saja/saya-wave.webp
+-4bd73b09813c309e744d3fe635334a486caad75d772e5ad1049b8c6c1adb97d5  dist/assets/fighters/actions/shabuka/combat.webp
+-1e20a5221b8384ebec2be1337e9871955f7cf4cec21a6c2e3b429f7ed4c43a94  dist/assets/fighters/actions/shabuka/locomotion.webp
+-a06233fe652440d23bfd1f52db8142b5a3e06af463ebd888c63f9ff2e60cdcbf  dist/assets/fighters/actions/shabuka/pom-power.webp
+-67746421b18296dc626d9506f119a6c3ef9f752ecc97db3d7bd1c4cf81d8f37c  dist/assets/fighters/actions/shabuka/rising-cheer.webp
++79a45487e12aa6d3db2babcdef0f6784abe420813af6837ac426374002e1753e  dist/assets/fighters/actions/asunta/baby-shriek.webp
++83eb15bb6935a93770e69bd31b99f0ccdff30f2333a8940c51081495c26ac932  dist/assets/fighters/actions/asunta/combat.webp
++686af54ced84965b76a8f25fc1b1711b8f770e748303290c603f1f8f45055be1  dist/assets/fighters/actions/asunta/diaper-toss.webp
++34ad9e1ee21c8013d84f88bcda30a86b2b0f1b80dc1b993b23fb3ab66c27483d  dist/assets/fighters/actions/asunta/locomotion.webp
++3ce7d1884ccb880d4678a610b82a6958801590171c2ef02b9c9d8f20d3055434  dist/assets/fighters/actions/bella/combat.webp
++38f4d00b633b3997e4b28b9fb6e46c8440b3756bff72d0870c43d14d490824c8  dist/assets/fighters/actions/bella/high-note.webp
++3e6aefa1c1c9d047f10cfa8bdeaf7fca9e8bfb7032753e861e4453497edb52ed  dist/assets/fighters/actions/bella/locomotion.webp
++6e289434cac4efc4c9e973be3cd623ec2bc4bee8972af00ab322ebea4178ff3d  dist/assets/fighters/actions/bella/mic-return.webp
++b90c94b1d44571c3590505f79b4937d8dd4f7054245d7a831223c4c3265ecd00  dist/assets/fighters/actions/benita/beer-bath.webp
++dc24efb0cc241f443d67db103f587caad5c1578cadc8c295b284b3f77c8f5053  dist/assets/fighters/actions/benita/combat.webp
++813f54a8c9579150c97fe48cd5c9aee72bb3a687a223252742d14c526c070100  dist/assets/fighters/actions/benita/locomotion.webp
++cdfde0ae86a34ab548732c35c73feb2c339430613df546176f7ba1ca6494b8fc  dist/assets/fighters/actions/benita/revolver.webp
++b8d82324b2534b1dcbbd88b11513e396524195150f60c35f3b842a35444d608c  dist/assets/fighters/actions/coraima/combat.webp
++af5b53cd3a0103941591aaea6b723b2f97d9d0070bb884b86e8bf0a3fe2afe5d  dist/assets/fighters/actions/coraima/flying-kiss.webp
++6cf2dc8e02ff7b9b5029ab38cc2fd23f5a7f543ded5d1f5c0d722dc12a0b992b  dist/assets/fighters/actions/coraima/locomotion.webp
++3033da397c08b5c4eaa51b604aeef1d45722c28a671350ca4299cbf98cd1dac0  dist/assets/fighters/actions/coraima/tornado-heel.webp
++4c0ea02c527c85326df515a33098548b75015abd70f6ade92a80a59cf155aeff  dist/assets/fighters/actions/jarjacha/combat.webp
++270894fa5fc9de46ffa4787e80adeb41c8ed9fd5a363473d87f44cd92cf6ecf8  dist/assets/fighters/actions/jarjacha/dizzy-hands.webp
++6a788fa0551e2c616f61f8926a1b2849795798a467e6de0d7824230341c4d976  dist/assets/fighters/actions/jarjacha/locomotion.webp
++95e11baa8d8696829b2be732897c4c4408c7ceade03c288751cde1b33a81f10f  dist/assets/fighters/actions/jarjacha/sandal-return.webp
++b0b8bd3fe728b23751a5411255bb012bfa588a69c4df84c1f877f504c1b1ffab  dist/assets/fighters/actions/mariachay/combat.webp
++08df89271d29d47edcab510e0f808fe161e9c0aacc3b81a85c4d3c77f50a8f83  dist/assets/fighters/actions/mariachay/locomotion.webp
++bc8174a5b3c2c0e5f15ab9dc9914dfa14ca9d10a543ab2dc8219b10d7d5eaad1  dist/assets/fighters/actions/mariachay/rolling-rush.webp
++c412f4226877da91cf4a2f101909ef6493fc3cd7c97c91a5a02150710d5ef95c  dist/assets/fighters/actions/mariachay/sky-slap.webp
++58c49e9c99ca51a08ca77fb3aefcc02e7e957b01b1065cc16646e13382f0b833  dist/assets/fighters/actions/saja/braid-lash.webp
++f632058b75cf546a47cbb9c0dc786e202a1f4fb6d6ac1f7212cf19c7e169de7e  dist/assets/fighters/actions/saja/combat.webp
++d717d7e837ce29cdad13fd88fa2f8f7881d500eda6cc3d213d03d0f9961e8eaa  dist/assets/fighters/actions/saja/locomotion.webp
++6ce7bbc5678b0de0d1b2b8b92859235ee29a19285c70ca23b69db26321b378b2  dist/assets/fighters/actions/saja/saya-wave.webp
++53d81b09ad1ecb18771eeee6b3027469066ee4540ea0fc8802cec15c7b60ba28  dist/assets/fighters/actions/shabuka/combat.webp
++7c6fe5a9248ee23c9b684f2cc147fe52c3ee0e089736f239745328512bf0bacc  dist/assets/fighters/actions/shabuka/locomotion.webp
++871140dc4e45e48ed7aeac8bfabd2fd724d101d41dd24a510c07d13b56d7df74  dist/assets/fighters/actions/shabuka/pom-power.webp
++589cfbe6f587956934baeb3b8facd2d6dd353fd559ddf44d27e0dc943abd0190  dist/assets/fighters/actions/shabuka/rising-cheer.webp
+ 3f5761ba368fe1a9dd8801f9a95afc76b984c6e0a838386e3a280a4f3d9dbd39  dist/assets/fighters/asunta.webp
+ e79f393759cfb231c1f3478f1a16b6d8014e29f31e9b3535dd8f169720bbe39f  dist/assets/fighters/bella.webp
+ 00cc05ac117a718f473afe60240486b4119dc7f08c8decff8a6a560ce0298a0c  dist/assets/fighters/benita.webp
+@@ -67,14 +67,14 @@ ad00c5c30ad00c055f253fae5ac0f3db923ecd04928e7e90d94e4c86d87a8d73  dist/assets/fi
+ 4297cd817a3872c82fa69a07bffcd2a469367d03742ec28cea93dbc377b700ac  dist/assets/fighters/portraits-v16/saja.webp
+ 9eb17e8f1bb21adb4c49dacaadbdcb3ee8d9a081f96c2d2ceaaed95a7a69d652  dist/assets/fighters/portraits-v16/shabuka.webp
+ c3f2b75299d877f3b107b1a2b78539d28a4e86e3e1680ec3364990e2e1184073  dist/assets/fighters/saja.webp
+-8d9320517539ee8a71fd66d9d292145d8b7df73f14884727262dde3164ae6b90  dist/assets/fighters/select-v16/asunta.webp
+-38c3ccaa983d6aa3d259779be5e559ca0dfd14210b80c74fff1fec3d94e4f2b0  dist/assets/fighters/select-v16/bella.webp
+-0d220175dbd4eb62d4cf6f5f13f3d2013bc6ae62e9dadda4e21b861e83cf7c24  dist/assets/fighters/select-v16/benita.webp
+-029a7319bf65cf057901747dc5e5584a4783ed39460ea47f13dbd8ba34bf0ce9  dist/assets/fighters/select-v16/coraima.webp
+-8c77a74738abddb7397c693df742d00f8c46694cf3a6bb5883b05f0ce1aa2f51  dist/assets/fighters/select-v16/jarjacha.webp
+-46c4a40fa2e22c59281712726003e48ee39c139328776d57ff98d9359e37f521  dist/assets/fighters/select-v16/mariachay.webp
+-08d6c4c8b5b18e059a273b02a73d416c7aacf7135e259466b50ce02f9e71b547  dist/assets/fighters/select-v16/saja.webp
+-76f903b53b695e3f0b2bd547b0c801ec37d03a3a7fd7e08cf795b7f658605a7d  dist/assets/fighters/select-v16/shabuka.webp
++a7d64236f7a58cbcc4a8b89289b58cf30f519159cc3055fdfdf7856113224b26  dist/assets/fighters/select-v16/asunta.webp
++12ff0430e199e8a31188d5fbe874227df1fe94897fc144f1fddfa5cc666f4393  dist/assets/fighters/select-v16/bella.webp
++27c91711049293f8fad88d67d3c5714c3ee6fbdb6e039abae46a445bb01a20e4  dist/assets/fighters/select-v16/benita.webp
++057c5e440bc663d3ef2eed108a313f983d8f5958b825448b6f31e2739d4524d6  dist/assets/fighters/select-v16/coraima.webp
++1ffafd3fb9d1c865a052d6b5c34805ebe47a3f2dda7f2562b76f2d7061367693  dist/assets/fighters/select-v16/jarjacha.webp
++96e5c0d1400a351c9bd59b7ed551bff60a6f01532ccc46c44fbe745a492fe3b2  dist/assets/fighters/select-v16/mariachay.webp
++7328010728128393c08624c4b555a437c404fecbab1d29511f7b0d802923b4c5  dist/assets/fighters/select-v16/saja.webp
++1b185b3c9a9adf3057a8f60fe088197a6770f5b3bbb7ad692e6f69e55d5917e7  dist/assets/fighters/select-v16/shabuka.webp
+ 01f69d443dc6a7d9336638002c0632857f305c81f2d95c6d7adefbb8a5387212  dist/assets/fighters/shabuka.webp
+ 30d1e8d369da685888bb63c901421675dbf1c80667d61f02a166bf4e0b9f7ee2  dist/assets/stages/arequipa.webp
+ f4a9601dde29ff5f51608df1676c5a553eb2b22718c909820a77f2225938533e  dist/assets/stages/circus.webp
+diff --git a/mamacha-manifest-update.patch b/mamacha-manifest-update.patch
+deleted file mode 100644
+index 5942401..0000000
+--- a/mamacha-manifest-update.patch
++++ /dev/null
+@@ -1,1631 +0,0 @@
+-diff --git a/docs/assets/SHA256SUMS.txt b/docs/assets/SHA256SUMS.txt
+-index cee1b77..d548e81 100644
+---- a/docs/assets/SHA256SUMS.txt
+-+++ b/docs/assets/SHA256SUMS.txt
+-@@ -9,17 +9,17 @@ c8ba283b7537ebf609eb2bc211f7eae3503bd0705dee8d298ab4048d23ce398d  dist/assets/au
+- 2f1403a0f7d6ed1bc38873b24a6e2b9e363a1ef9f20f26da5f108a5249173c43  dist/assets/audio/sfx/ui_confirm.wav
+- b2de67af594d819d03186187b3b6f92ae9935fa319c5ac42fb74f47bafc513ca  dist/assets/audio/sfx/ui_move.wav
+- 5f79ed9dcb365390f8fe36c69177882331cd028c5493a59a8c5672ea23503c64  dist/assets/audio/sfx/whoosh.wav
+--90dcabe24abd2b10e0f74a81e6c5c85bc301f0cd600c474552c2584388e33f8f  dist/assets/audio/soundtrack/AsuntaTheme.mp3
+--eef8fdb9524965d2c8531ed6266b5339fa8b33a5ac7f06b07684c6d821ed648f  dist/assets/audio/soundtrack/BellaTheme.mp3
+--4935b83269918b7e28d0baec76becb0680a851cdb01064e0c31e670b5bef3d2a  dist/assets/audio/soundtrack/BenitaTheme.mp3
+--415046f0ac1d2d0cfb1a55289de622bcfd118517ac1d431412ef9f38f1cf7e0b  dist/assets/audio/soundtrack/BonusTrack.mp3
+--8c99410b4868abcc9530ea10edbe3afd1cd74fe70eb7c8ac67e3e7fcad83c60b  dist/assets/audio/soundtrack/CoraimaTheme.mp3
+--66f3420f0c2939a02b16d2d7880a3cee1857c1e3377154caabab9bf00251785b  dist/assets/audio/soundtrack/EndCredits.mp3
+--44a8a53623e4620cbab752cde5d617a95dc8a10d80ea0e7950be477ed057beb7  dist/assets/audio/soundtrack/Intro_SelectionScreen.mp3
+--84332723c9690d647608bec60f5a77a5cedd9e9b4873b602712b6b86fcb12ec9  dist/assets/audio/soundtrack/JarjachaTheme.mp3
+--7f2826fa2a1e055647bc9027a34ae41d8840074b48c55771492404e91187b666  dist/assets/audio/soundtrack/MariachayTheme.mp3
+--0b11cf38fa0580a7a6bc2cd4fb8c590bb61cb070f60cc3536fa6c83a0499f292  dist/assets/audio/soundtrack/SajaTheme.mp3
+--c3c2e2fc40a06f7f79e7c4ac5202249096a03a59ffa2f1f6bb993cdfae4166ed  dist/assets/audio/soundtrack/ShabukaTheme.mp3
+-+018b87c8e28e3549194951b1a50187f92ed7740b15716effe502c9eee8e67c71  dist/assets/audio/soundtrack/AsuntaTheme.mp3
+-+501f08ca015c8395b3fbb44e2a57dac1ac69f50abbd45d2ab1d7500eeea54d01  dist/assets/audio/soundtrack/BellaTheme.mp3
+-+e2f340485ee1b19f824e41cca75c7d0366af2fb30c4014c15897a7a76460026b  dist/assets/audio/soundtrack/BenitaTheme.mp3
+-+031ead4cb687f6b7ad613e26d0108955c120daa3408a00c7a114d44761183f07  dist/assets/audio/soundtrack/BonusTrack.mp3
+-+e2774698153a6733b598664b7614a01807239d11ae414b8cb3ce2ca279729d96  dist/assets/audio/soundtrack/CoraimaTheme.mp3
+-+1b3174b755c6f5d1a71914aa32f89320679a00a9afbc0410e1c591023969860d  dist/assets/audio/soundtrack/EndCredits.mp3
+-+abc1e04b003b3802519d833a3c4245e83688ccf494d7099659fa4114e0f27c4e  dist/assets/audio/soundtrack/Intro_SelectionScreen.mp3
+-+d426d1f9b901b1047b26f70e518c108cbef3701cb46bf720756f6a21e80e36a4  dist/assets/audio/soundtrack/JarjachaTheme.mp3
+-+9ed51e9e568edc7c2ccd961f48206b152b70b57d1965343870989eb8db70b9b5  dist/assets/audio/soundtrack/MariachayTheme.mp3
+-+2d95ddf816916027b3b5951651e9b118fc31e105e1a48423d929e68db34c4555  dist/assets/audio/soundtrack/SajaTheme.mp3
+-+b3aa8f12e48c34ea11eab3f37b56a99937c94a677351fb39548db8adc5259de8  dist/assets/audio/soundtrack/ShabukaTheme.mp3
+- 73866d5b66674c7a78b7ad00e42eab449b0ec8386406c3f155b9fa2e3008828b  dist/assets/fighters/actions/asunta/baby-shriek.webp
+- ea30f0c8af7b9b215c3dd22f812b1046eaebf8e301b8390a72b6992efb4a6c2f  dist/assets/fighters/actions/asunta/combat.webp
+- 0af76b341ef0d8c0ba579279d5293632a74f544c4db1bc5f70148d44c1a5e1da  dist/assets/fighters/actions/asunta/diaper-toss.webp
+-diff --git a/mamacha-special-startup.patch b/mamacha-special-startup.patch
+-deleted file mode 100644
+-index 9ffce58..0000000
+---- a/mamacha-special-startup.patch
+-+++ /dev/null
+-@@ -1,1592 +0,0 @@
+--diff --git a/dist/game.js b/dist/game.js
+--index 90090f9..631bfe1 100644
+----- a/dist/game.js
+--+++ b/dist/game.js
+--@@ -357,7 +357,7 @@
+--     if(defender.stun>0&&attacker.attackId===defender.lastHit)return false;defender.lastHit=attacker.attackId;
+--     const guardOk=guardType==='overhead'?!defender.crouching:guardType==='low'?defender.crouching:true;
+--     const blocked=defender.block&&defender.grounded&&guardOk&&Math.sign(attacker.x-defender.x)===defender.facing;
+---    const chain=blocked?(defender.hitsTaken||0):(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
+--+    const chain=blocked?0:(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
+--     const comboScale=blocked?1:Math.max(.5,1-.1*(chain-1));
+--     damage*=attacker.d.power/defender.d.defense*comboScale;
+--     const weight=Math.max(.6,Math.min(1.6,damage/10));
+--@@ -402,8 +402,17 @@
+--     if(o.hp<=0){match.state='ko';match.stateTime=2.5;match.winner=f;f.rounds++;sfx('ko')}
+--   }
+--   function projectile(f,opts={}){match.projectiles.push({owner:f,x:f.x+f.facing*60,y:f.y-(opts.y||105),vx:f.facing*(opts.speed||8),vy:opts.vy||0,w:opts.w||50,h:opts.h||28,life:opts.life||1.7,damage:opts.damage||10,kind:opts.kind||'wave',color:opts.color||f.d.accent,returning:opts.returning||false,stun:opts.stun||false,age:0});sfx('projectile',opts.kind==='bullet'?1.28:1);}
+--+  const SPECIAL_STARTUP=.08;
+--   function special(f,o,n){
+--     if(!canAct(f))return;f.wakeupInvincible=false;f.attackId++;f.combo=0;f.action=n===1?'special1':'special2';f.timer=.65;f.actionDuration=.65;f.cool=.55;
+--+    f.pendingSpecial=n;
+--+    sfx('special',n===1?1.06:.91,.85);
+--+  }
+--+  function resolveSpecial(f,o){
+--+    if(f.pendingSpecial==null)return;
+--+    const elapsed=f.actionDuration-f.timer;
+--+    if(elapsed<SPECIAL_STARTUP)return;
+--+    const n=f.pendingSpecial;f.pendingSpecial=null;
+--     const k=f.d.kind;
+--     if(n===1){
+--       if(k==='whip'){const hb={x:f.facing>0?f.x+20:f.x-250,y:f.y-135,w:250,h:70};if(rects(hb,hurtbox(o)))hit(f,o,13,7,-3,.3,'#ff5ed0');match.projectiles.push({owner:f,x:f.x,y:f.y-115,vx:0,vy:0,w:250,h:10,life:.22,damage:0,kind:'whip',color:'#ff5ed0',age:0})}
+--@@ -424,7 +433,6 @@
+--       else if(k==='odd')projectile(f,{kind:'sandal',speed:8,w:58,h:30,damage:11,returning:true,color:'#ad6c34'});
+--       else{f.action='uppercut';f.timer=.7;f.actionDuration=.7;f.vy=-12;f.vx=f.facing*5;if(Math.abs(o.x-f.x)<135)hit(f,o,16,8,-9,.4,'#ff8b42')}
+--     }
+---    sfx('special',n===1?1.06:.91,.85);
+--   }
+-- 
+--   const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut','throw'];
+--@@ -454,7 +462,8 @@
+--       else{const dir=(c.right?1:0)-(c.left?1:0);f.vx+=dir*f.d.speed*.34;f.vx=Math.max(-f.d.speed,Math.min(f.d.speed,f.vx));if(dir)f.action='walk';else if(f.grounded)f.action=f.block?'block':'idle';if(c.pressed?.up&&f.grounded){f.vy=-f.d.jump;f.grounded=false;f.action='jump';f.actionDuration=.7;sfx('jump')}}
+--     }
+--     resolveMeleeHit(f,o);
+---    if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
+--+    resolveSpecial(f,o);
+--+    if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff',false,'overhead')}}
+--     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
+--     if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.knockdown){f.knockdown=false;f.action='down';f.timer=.5;f.actionDuration=.5;f.cool=.5;f.stun=.5;f.wakeupInvincible=true}else if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+--     f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded){f.wakeupInvincible=false;f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';}
+--diff --git a/mamacha-all-tiers.patch b/mamacha-all-tiers.patch
+--deleted file mode 100644
+--index 5de262f..0000000
+----- a/mamacha-all-tiers.patch
+--+++ /dev/null
+--@@ -1,649 +0,0 @@
+---diff --git a/dist/game.js b/dist/game.js
+---index 204c877..fe0d403 100644
+------ a/dist/game.js
+---+++ b/dist/game.js
+---@@ -349,26 +349,61 @@
+---     screen='fight';playMusic(roundMusic(1),true);sfx('round');document.querySelector('#status').textContent=match.stage.name;
+---   }
+--- 
+----  function rects(a,b){return a.x<a.w+b.x&&a.x+a.w>b.x&&a.y<a.h+b.y&&a.y+a.h>b.y}
+---+  function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+---   function hurtbox(f){const scale=f.d.size/310,wide=((f.d.id==='benita'||f.d.id==='shabuka')?104:82)*scale,height=(f.crouching?142:232)*scale;return{x:f.x-wide/2,y:f.y-height-6,w:wide,h:height}}
+---   function addParticles(x,y,color,n=12,power=5){for(let i=0;i<n;i++)match.particles.push({x,y,vx:(Math.random()*2-1)*power,vy:(Math.random()*-1)*power-1,life:.25+Math.random()*.35,color,size:3+Math.random()*7})}
+----  function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false){
+---+  function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false,guardType='mid'){
+---+    if(defender.wakeupInvincible)return false;
+---     if(defender.stun>0&&attacker.attackId===defender.lastHit)return false;defender.lastHit=attacker.attackId;
+----    const blocked=defender.block&&defender.grounded&&Math.sign(attacker.x-defender.x)===defender.facing;
+----    damage*=attacker.d.power/defender.d.defense;defender.hp=Math.max(0,defender.hp-damage*(blocked?.24:1));defender.vx=kx*Math.sign(defender.x-attacker.x)*(blocked?.35:1);defender.vy=blocked?0:ky;defender.stun=forceStun?1.3:(blocked?.11:stun);defender.action=blocked?'block':'hurt';defender.actionDuration=defender.stun;defender.flash=.12;attacker.meter=Math.min(100,attacker.meter+damage*2);attacker.combo++;
+----    addParticles(defender.x,defender.y-95,blocked?'#76e5ff':color,blocked?7:15,blocked?3:6);match.shake=Math.max(match.shake,blocked?4:9);match.hitstop=blocked?.035:.07;sfx(blocked?'block':damage>=12?'heavy':'hit',.94+Math.random()*.1);
+---+    const guardOk=guardType==='overhead'?!defender.crouching:guardType==='low'?defender.crouching:true;
+---+    const blocked=defender.block&&defender.grounded&&guardOk&&Math.sign(attacker.x-defender.x)===defender.facing;
+---+    const chain=blocked?(defender.hitsTaken||0):(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
+---+    const comboScale=blocked?1:Math.max(.5,1-.1*(chain-1));
+---+    damage*=attacker.d.power/defender.d.defense*comboScale;
+---+    const weight=Math.max(.6,Math.min(1.6,damage/10));
+---+    const knockDir=Math.sign(defender.x-attacker.x)||1;
+---+    defender.hp=Math.max(0,defender.hp-damage*(blocked?.24:1));defender.vx=kx*knockDir*(blocked?.35:1);attacker.vx=-kx*knockDir*(blocked?.5:.25);defender.vy=blocked?0:ky;
+---+    if(!blocked&&!defender.grounded)defender.knockdown=true;
+---+    defender.stun=forceStun?1.3:(blocked?.11:stun);defender.action=blocked?'block':'hurt';defender.actionDuration=defender.stun;defender.flash=.12;attacker.meter=Math.min(100,attacker.meter+damage*2);attacker.combo=chain;
+---+    addParticles(defender.x,defender.y-95,blocked?'#76e5ff':color,blocked?Math.round(7*weight):Math.round(15*weight),blocked?3:Math.round(6*weight));
+---+    match.shake=Math.max(match.shake,(blocked?4:7)*weight);match.hitstop=Math.max(match.hitstop,(blocked?.03:.045)*weight);
+---+    sfx(blocked?'block':damage>=12?'heavy':'hit',.94+Math.random()*.1);
+---     if(defender.hp<=0){match.state='ko';match.stateTime=2.5;match.winner=attacker;attacker.rounds++;sfx('ko')}
+---     return true;
+---   }
+--- 
+----  function melee(f,o,kind){
+----    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310,reach=(stretch?250:heavy?112:78)*scale,damage=heavy?11:6;f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+----    const hb={x:f.facing>0?f.x+20:f.x-reach-20,y:f.y-(heavy?132:118)*scale,w:reach,h:(heavy?86:65)*scale};
+----    if(rects(hb,hurtbox(o)))hit(f,o,damage,heavy?8:4,heavy?-5:-2,heavy?.38:.2,f.d.accent);
+---+  const REVERSAL_WINDOW=.12;
+---+  function canAct(f){return (f.stun<=0&&f.cool<=0)||(f.action==='down'&&f.timer>0&&f.timer<=REVERSAL_WINDOW)}
+---+  function melee(f,kind,crouching,airborne){
+---+    f.wakeupInvincible=false;
+---+    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310;
+---+    f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;f.hitResolved=false;
+---+    f.atkStartup=heavy?.09:.05;f.atkActiveEnd=f.atkStartup+(heavy?.1:.07);
+---+    f.atkReach=(stretch?250:heavy?112:78)*scale;f.atkYOffset=(heavy?132:118)*scale;f.atkH=(heavy?86:65)*scale;
+---+    f.atkDamage=heavy?11:6;f.atkKx=heavy?8:4;f.atkKy=heavy?-5:-2;f.atkStun=heavy?.38:.2;
+---+    f.atkGuardType=airborne?'overhead':(crouching?'low':'mid');
+---+    sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+---+  }
+---+  function resolveMeleeHit(f,o){
+---+    if((f.action!=='light'&&f.action!=='heavy')||f.hitResolved)return;
+---+    const elapsed=f.actionDuration-f.timer;
+---+    if(elapsed<f.atkStartup||elapsed>=f.atkActiveEnd)return;
+---+    const hb={x:f.facing>0?f.x+20:f.x-f.atkReach-20,y:f.y-f.atkYOffset,w:f.atkReach,h:f.atkH};
+---+    if(rects(hb,hurtbox(o))){hit(f,o,f.atkDamage,f.atkKx,f.atkKy,f.atkStun,f.d.accent,false,f.atkGuardType);f.hitResolved=true}
+---+  }
+---+  function throwAttempt(f,o){
+---+    f.wakeupInvincible=false;
+---+    const range=90*(f.d.size/310),inRange=Math.abs(o.x-f.x)<=range&&Math.abs(o.y-f.y)<=40&&o.grounded&&f.grounded;
+---+    f.action='throw';f.timer=inRange?.5:.3;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;
+---+    if(!inRange)return;
+---+    o.action='thrown';o.timer=.6;o.actionDuration=.6;o.cool=.6;o.stun=.6;o.grounded=false;o.vy=-6;o.vx=f.facing*7;
+---+    o.hp=Math.max(0,o.hp-8);o.knockdown=true;o.lastHit=f.attackId;f.meter=Math.min(100,f.meter+10);
+---+    addParticles(o.x,o.y-100,'#ffe27a',10,5);match.shake=Math.max(match.shake,6);sfx('heavy',.9,.9);
+---+    if(o.hp<=0){match.state='ko';match.stateTime=2.5;match.winner=f;f.rounds++;sfx('ko')}
+---   }
+---   function projectile(f,opts={}){match.projectiles.push({owner:f,x:f.x+f.facing*60,y:f.y-(opts.y||105),vx:f.facing*(opts.speed||8),vy:opts.vy||0,w:opts.w||50,h:opts.h||28,life:opts.life||1.7,damage:opts.damage||10,kind:opts.kind||'wave',color:opts.color||f.d.accent,returning:opts.returning||false,stun:opts.stun||false,age:0});sfx('projectile',opts.kind==='bullet'?1.28:1);}
+---   function special(f,o,n){
+----    if(f.cool>0||f.stun>0)return;f.attackId++;f.combo=0;f.action=n===1?'special1':'special2';f.timer=.65;f.actionDuration=.65;f.cool=.55;
+---+    if(!canAct(f))return;f.wakeupInvincible=false;f.attackId++;f.combo=0;f.action=n===1?'special1':'special2';f.timer=.65;f.actionDuration=.65;f.cool=.55;
+---     const k=f.d.kind;
+---     if(n===1){
+---       if(k==='whip'){const hb={x:f.facing>0?f.x+20:f.x-250,y:f.y-135,w:250,h:70};if(rects(hb,hurtbox(o)))hit(f,o,13,7,-3,.3,'#ff5ed0');match.projectiles.push({owner:f,x:f.x,y:f.y-115,vx:0,vy:0,w:250,h:10,life:.22,damage:0,kind:'whip',color:'#ff5ed0',age:0})}
+---@@ -392,27 +427,39 @@
+---     sfx('special',n===1?1.06:.91,.85);
+---   }
+--- 
+----  const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut'];
+---+  const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut','throw'];
+---+  function isFacingLocked(f){return (AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0}
+---   function aiControls(f,o,dt){
+----    f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
+---+    f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<90){const r=Math.random();if(r<.14){f.ai.pressed.light=true;f.ai.pressed.heavy=true}else if(r<.5)f.ai.pressed.light=true;else if(r<.76)f.ai.pressed.heavy=true;else if(r<.9)f.ai.pressed.sp1=true;else f.ai.pressed.sp2=true}else if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
+---     return f.ai||{pressed:{}};
+---   }
+--- 
+---   function updateFighter(f,o,c,dt){
+----    const facingLocked=AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0||f.stun>0;
+----    if(!facingLocked)f.facing=o.x>=f.x?1:-1;
+---+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+---+    const wasCrouching=f.crouching,wasGrounded=f.grounded;
+---     f.cool=Math.max(0,f.cool-dt);f.timer=Math.max(0,f.timer-dt);f.stun=Math.max(0,f.stun-dt);f.flash=Math.max(0,f.flash-dt);f.block=!!c.block&&f.stun<=0;f.crouching=false;
+----    if(f.stun<=0&&f.cool<=0&&match.state==='fight'){
+----      if(c.pressed?.light)melee(f,o,'light');else if(c.pressed?.heavy)melee(f,o,'heavy');else if(c.pressed?.sp1)special(f,o,1);else if(c.pressed?.sp2)special(f,o,2);
+---+    const BUF=.08;
+---+    f.bufThrow=(c.pressed?.light&&c.pressed?.heavy)?BUF:Math.max(0,(f.bufThrow||0)-dt);
+---+    f.bufLight=c.pressed?.light?BUF:Math.max(0,(f.bufLight||0)-dt);
+---+    f.bufHeavy=c.pressed?.heavy?BUF:Math.max(0,(f.bufHeavy||0)-dt);
+---+    f.bufSp1=c.pressed?.sp1?BUF:Math.max(0,(f.bufSp1||0)-dt);
+---+    f.bufSp2=c.pressed?.sp2?BUF:Math.max(0,(f.bufSp2||0)-dt);
+---+    if(canAct(f)&&match.state==='fight'){
+---+      if(f.bufThrow>0){f.bufThrow=0;f.bufLight=0;f.bufHeavy=0;throwAttempt(f,o);}
+---+      else if(f.bufLight>0){f.bufLight=0;melee(f,'light',wasCrouching,!wasGrounded);}
+---+      else if(f.bufHeavy>0){f.bufHeavy=0;melee(f,'heavy',wasCrouching,!wasGrounded);}
+---+      else if(f.bufSp1>0){f.bufSp1=0;special(f,o,1);}
+---+      else if(f.bufSp2>0){f.bufSp2=0;special(f,o,2);}
+---       else if(c.down&&f.grounded){f.crouching=true;f.vx*=.5;f.action='crouch'}
+---       else{const dir=(c.right?1:0)-(c.left?1:0);f.vx+=dir*f.d.speed*.34;f.vx=Math.max(-f.d.speed,Math.min(f.d.speed,f.vx));if(dir)f.action='walk';else if(f.grounded)f.action=f.block?'block':'idle';if(c.pressed?.up&&f.grounded){f.vy=-f.d.jump;f.grounded=false;f.action='jump';f.actionDuration=.7;sfx('jump')}}
+---     }
+---+    resolveMeleeHit(f,o);
+---     if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
+---     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
+----    if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+----    f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded)f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';
+---+    if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.knockdown){f.knockdown=false;f.action='down';f.timer=.5;f.actionDuration=.5;f.cool=.5;f.stun=.5;f.wakeupInvincible=true}else if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+---+    f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded){f.wakeupInvincible=false;f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';}
+---     if(f.grounded&&c.down&&f.stun<=0&&f.cool<=0){f.crouching=true;f.action='crouch'}
+----    if(!((AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0))f.facing=o.x>=f.x?1:-1;
+---+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+---     f.trail.unshift({x:f.x,y:f.y,frame:f.animFrame||0});if(f.trail.length>6)f.trail.pop();
+---   }
+--- 
+---diff --git a/mamacha-tier1-slice1.patch b/mamacha-tier1-slice1.patch
+---deleted file mode 100644
+---index e061b2f..0000000
+------ a/mamacha-tier1-slice1.patch
+---+++ /dev/null
+---@@ -1,171 +0,0 @@
+----diff --git a/dist/game.js b/dist/game.js
+----index 204c877..69f0cc5 100644
+------- a/dist/game.js
+----+++ b/dist/game.js
+----@@ -349,7 +349,7 @@
+----     screen='fight';playMusic(roundMusic(1),true);sfx('round');document.querySelector('#status').textContent=match.stage.name;
+----   }
+---- 
+-----  function rects(a,b){return a.x<a.w+b.x&&a.x+a.w>b.x&&a.y<a.h+b.y&&a.y+a.h>b.y}
+----+  function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+----   function hurtbox(f){const scale=f.d.size/310,wide=((f.d.id==='benita'||f.d.id==='shabuka')?104:82)*scale,height=(f.crouching?142:232)*scale;return{x:f.x-wide/2,y:f.y-height-6,w:wide,h:height}}
+----   function addParticles(x,y,color,n=12,power=5){for(let i=0;i<n;i++)match.particles.push({x,y,vx:(Math.random()*2-1)*power,vy:(Math.random()*-1)*power-1,life:.25+Math.random()*.35,color,size:3+Math.random()*7})}
+----   function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false){
+----@@ -361,10 +361,20 @@
+----     return true;
+----   }
+---- 
+-----  function melee(f,o,kind){
+-----    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310,reach=(stretch?250:heavy?112:78)*scale,damage=heavy?11:6;f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+-----    const hb={x:f.facing>0?f.x+20:f.x-reach-20,y:f.y-(heavy?132:118)*scale,w:reach,h:(heavy?86:65)*scale};
+-----    if(rects(hb,hurtbox(o)))hit(f,o,damage,heavy?8:4,heavy?-5:-2,heavy?.38:.2,f.d.accent);
+----+  function melee(f,kind){
+----+    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310;
+----+    f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;f.hitResolved=false;
+----+    f.atkStartup=heavy?.09:.05;f.atkActiveEnd=f.atkStartup+(heavy?.1:.07);
+----+    f.atkReach=(stretch?250:heavy?112:78)*scale;f.atkYOffset=(heavy?132:118)*scale;f.atkH=(heavy?86:65)*scale;
+----+    f.atkDamage=heavy?11:6;f.atkKx=heavy?8:4;f.atkKy=heavy?-5:-2;f.atkStun=heavy?.38:.2;
+----+    sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+----+  }
+----+  function resolveMeleeHit(f,o){
+----+    if((f.action!=='light'&&f.action!=='heavy')||f.hitResolved)return;
+----+    const elapsed=f.actionDuration-f.timer;
+----+    if(elapsed<f.atkStartup||elapsed>=f.atkActiveEnd)return;
+----+    const hb={x:f.facing>0?f.x+20:f.x-f.atkReach-20,y:f.y-f.atkYOffset,w:f.atkReach,h:f.atkH};
+----+    if(rects(hb,hurtbox(o))){hit(f,o,f.atkDamage,f.atkKx,f.atkKy,f.atkStun,f.d.accent);f.hitResolved=true}
+----   }
+----   function projectile(f,opts={}){match.projectiles.push({owner:f,x:f.x+f.facing*60,y:f.y-(opts.y||105),vx:f.facing*(opts.speed||8),vy:opts.vy||0,w:opts.w||50,h:opts.h||28,life:opts.life||1.7,damage:opts.damage||10,kind:opts.kind||'wave',color:opts.color||f.d.accent,returning:opts.returning||false,stun:opts.stun||false,age:0});sfx('projectile',opts.kind==='bullet'?1.28:1);}
+----   function special(f,o,n){
+----@@ -393,26 +403,27 @@
+----   }
+---- 
+----   const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut'];
+----+  function isFacingLocked(f){return (AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0}
+----   function aiControls(f,o,dt){
+----     f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
+----     return f.ai||{pressed:{}};
+----   }
+---- 
+----   function updateFighter(f,o,c,dt){
+-----    const facingLocked=AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0||f.stun>0;
+-----    if(!facingLocked)f.facing=o.x>=f.x?1:-1;
+----+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+----     f.cool=Math.max(0,f.cool-dt);f.timer=Math.max(0,f.timer-dt);f.stun=Math.max(0,f.stun-dt);f.flash=Math.max(0,f.flash-dt);f.block=!!c.block&&f.stun<=0;f.crouching=false;
+----     if(f.stun<=0&&f.cool<=0&&match.state==='fight'){
+-----      if(c.pressed?.light)melee(f,o,'light');else if(c.pressed?.heavy)melee(f,o,'heavy');else if(c.pressed?.sp1)special(f,o,1);else if(c.pressed?.sp2)special(f,o,2);
+----+      if(c.pressed?.light)melee(f,'light');else if(c.pressed?.heavy)melee(f,'heavy');else if(c.pressed?.sp1)special(f,o,1);else if(c.pressed?.sp2)special(f,o,2);
+----       else if(c.down&&f.grounded){f.crouching=true;f.vx*=.5;f.action='crouch'}
+----       else{const dir=(c.right?1:0)-(c.left?1:0);f.vx+=dir*f.d.speed*.34;f.vx=Math.max(-f.d.speed,Math.min(f.d.speed,f.vx));if(dir)f.action='walk';else if(f.grounded)f.action=f.block?'block':'idle';if(c.pressed?.up&&f.grounded){f.vy=-f.d.jump;f.grounded=false;f.action='jump';f.actionDuration=.7;sfx('jump')}}
+----     }
+----+    resolveMeleeHit(f,o);
+----     if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
+----     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
+----     if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+----     f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded)f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';
+----     if(f.grounded&&c.down&&f.stun<=0&&f.cool<=0){f.crouching=true;f.action='crouch'}
+-----    if(!((AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0))f.facing=o.x>=f.x?1:-1;
+----+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+----     f.trail.unshift({x:f.x,y:f.y,frame:f.animFrame||0});if(f.trail.length>6)f.trail.pop();
+----   }
+---- 
+----diff --git a/tests/legacy/facing-walk.test.mjs b/tests/legacy/facing-walk.test.mjs
+----index 5f12758..a5bb163 100644
+------- a/tests/legacy/facing-walk.test.mjs
+----+++ b/tests/legacy/facing-walk.test.mjs
+----@@ -8,8 +8,9 @@ const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8'
+---- const updateSource = game.slice(game.indexOf('  function updateFighter('), game.indexOf('  function updateProjectiles('));
+---- function fixture(action='idle', facing=1) {
+----   const context = vm.createContext({ AI_ATTACK_ACTIONS:['light','heavy','special1','special2','roll','jumpattack','uppercut'],
+----+    isFacingLocked(f){return (['light','heavy','special1','special2','roll','jumpattack','uppercut'].includes(f.action)&&f.timer>0)||f.stun>0},
+----     match:{state:'fight'}, FLOOR:628, W:1280, sfx(){},
+-----    melee(f,o,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){} });
+----+    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){} });
+----   vm.runInContext(updateSource, context);
+----   const f={d:{speed:4.8,jump:12},x:400,y:628,vx:0,vy:0,grounded:true,facing,
+----     action,timer:action==='idle'?0:.3,cool:action==='idle'?0:.3,stun:0,flash:0,trail:[]};
+----diff --git a/tests/legacy/melee-frames.test.mjs b/tests/legacy/melee-frames.test.mjs
+----new file mode 100644
+----index 0000000..f9273dc
+------- /dev/null
+----+++ b/tests/legacy/melee-frames.test.mjs
+----@@ -0,0 +1,80 @@
+----+import { test } from 'node:test';
+----+import assert from 'node:assert/strict';
+----+import { readFileSync } from 'node:fs';
+----+import vm from 'node:vm';
+----+
+----+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+----+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function projectile('));
+----+
+----+function fixture() {
+----+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+----+  const context = vm.createContext({ sfx() {}, match });
+----+  vm.runInContext(combatSource, context);
+----+  const attacker = { d: { id: 'saja', size: 306, accent: '#fff', power: 1 }, x: 400, y: 628, facing: 1, stun: 0, lastHit: undefined, attackId: 0 };
+----+  const defender = { d: { id: 'benita', size: 312, defense: 1 }, x: 460, y: 628, facing: -1, block: false, grounded: true, stun: 0, hp: 100, meter: 0, combo: 0 };
+----+  return { context, attacker, defender };
+----+}
+----+
+----+test('rects() detects overlap even when one box is much smaller than the other', () => {
+----+  const { context } = fixture();
+----+  // A short, narrow attack box against a tall hurtbox it genuinely overlaps.
+----+  const attackBox = { x: 420, y: 511.5, w: 77, h: 64.2 };
+----+  const hurtBox = { x: 407.7, y: 389, w: 104.6, h: 233 };
+----+  assert.equal(context.rects(attackBox, hurtBox), true);
+----+});
+----+
+----+test('rects() still rejects boxes that truly do not overlap', () => {
+----+  const { context } = fixture();
+----+  assert.equal(context.rects({ x: 0, y: 0, w: 10, h: 10 }, { x: 100, y: 100, w: 10, h: 10 }), false);
+----+});
+----+
+----+test('a press does not resolve a hit on the same frame (real startup delay)', () => {
+----+  const { context, attacker, defender } = fixture();
+----+  context.melee(attacker, 'light');
+----+  context.resolveMeleeHit(attacker, defender);
+----+  assert.equal(attacker.hitResolved, false);
+----+  assert.equal(defender.hp, 100);
+----+});
+----+
+----+test('a light attack in range connects once elapsed time enters the active window', () => {
+----+  const { context, attacker, defender } = fixture();
+----+  context.melee(attacker, 'light');
+----+  let hitFrame = null;
+----+  for (let i = 0; i < 20; i += 1) {
+----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+----+    context.resolveMeleeHit(attacker, defender);
+----+    if (attacker.hitResolved && hitFrame === null) hitFrame = i;
+----+  }
+----+  assert.ok(hitFrame !== null, 'expected the attack to connect before recovery ended');
+----+  const elapsedAtHit = attacker.actionDuration - (attacker.actionDuration - (hitFrame + 1) / 60);
+----+  assert.ok(elapsedAtHit >= attacker.atkStartup, 'hit should not land before startup ends');
+----+  assert.ok(elapsedAtHit < attacker.atkActiveEnd, 'hit should not land after the active window closes');
+----+  assert.ok(defender.hp < 100, 'defender should have taken damage');
+----+});
+----+
+----+test('a light attack only resolves once per press (no double-hit within the active window)', () => {
+----+  const { context, attacker, defender } = fixture();
+----+  context.melee(attacker, 'light');
+----+  for (let i = 0; i < 20; i += 1) {
+----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+----+    context.resolveMeleeHit(attacker, defender);
+----+  }
+----+  const hpAfterFirstResolution = defender.hp;
+----+  for (let i = 0; i < 10; i += 1) {
+----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+----+    context.resolveMeleeHit(attacker, defender);
+----+  }
+----+  assert.equal(defender.hp, hpAfterFirstResolution);
+----+});
+----+
+----+test('an out-of-range light attack never resolves a hit', () => {
+----+  const { context, attacker, defender } = fixture();
+----+  defender.x = attacker.x + 1000;
+----+  context.melee(attacker, 'light');
+----+  for (let i = 0; i < 20; i += 1) {
+----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+----+    context.resolveMeleeHit(attacker, defender);
+----+  }
+----+  assert.equal(attacker.hitResolved, false);
+----+  assert.equal(defender.hp, 100);
+----+});
+---diff --git a/tests/legacy/facing-walk.test.mjs b/tests/legacy/facing-walk.test.mjs
+---index 5f12758..0df0e1d 100644
+------ a/tests/legacy/facing-walk.test.mjs
+---+++ b/tests/legacy/facing-walk.test.mjs
+---@@ -8,8 +8,10 @@ const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8'
+--- const updateSource = game.slice(game.indexOf('  function updateFighter('), game.indexOf('  function updateProjectiles('));
+--- function fixture(action='idle', facing=1) {
+---   const context = vm.createContext({ AI_ATTACK_ACTIONS:['light','heavy','special1','special2','roll','jumpattack','uppercut'],
+---+    isFacingLocked(f){return (['light','heavy','special1','special2','roll','jumpattack','uppercut'].includes(f.action)&&f.timer>0)||f.stun>0},
+---+    canAct(f){return (f.stun<=0&&f.cool<=0)||(f.action==='down'&&f.timer>0&&f.timer<=.12)},
+---     match:{state:'fight'}, FLOOR:628, W:1280, sfx(){},
+----    melee(f,o,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){} });
+---+    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){}, throwAttempt(){} });
+---   vm.runInContext(updateSource, context);
+---   const f={d:{speed:4.8,jump:12},x:400,y:628,vx:0,vy:0,grounded:true,facing,
+---     action,timer:action==='idle'?0:.3,cool:action==='idle'?0:.3,stun:0,flash:0,trail:[]};
+---diff --git a/tests/legacy/melee-frames.test.mjs b/tests/legacy/melee-frames.test.mjs
+---new file mode 100644
+---index 0000000..f9273dc
+------ /dev/null
+---+++ b/tests/legacy/melee-frames.test.mjs
+---@@ -0,0 +1,80 @@
+---+import { test } from 'node:test';
+---+import assert from 'node:assert/strict';
+---+import { readFileSync } from 'node:fs';
+---+import vm from 'node:vm';
+---+
+---+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+---+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function projectile('));
+---+
+---+function fixture() {
+---+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+---+  const context = vm.createContext({ sfx() {}, match });
+---+  vm.runInContext(combatSource, context);
+---+  const attacker = { d: { id: 'saja', size: 306, accent: '#fff', power: 1 }, x: 400, y: 628, facing: 1, stun: 0, lastHit: undefined, attackId: 0 };
+---+  const defender = { d: { id: 'benita', size: 312, defense: 1 }, x: 460, y: 628, facing: -1, block: false, grounded: true, stun: 0, hp: 100, meter: 0, combo: 0 };
+---+  return { context, attacker, defender };
+---+}
+---+
+---+test('rects() detects overlap even when one box is much smaller than the other', () => {
+---+  const { context } = fixture();
+---+  // A short, narrow attack box against a tall hurtbox it genuinely overlaps.
+---+  const attackBox = { x: 420, y: 511.5, w: 77, h: 64.2 };
+---+  const hurtBox = { x: 407.7, y: 389, w: 104.6, h: 233 };
+---+  assert.equal(context.rects(attackBox, hurtBox), true);
+---+});
+---+
+---+test('rects() still rejects boxes that truly do not overlap', () => {
+---+  const { context } = fixture();
+---+  assert.equal(context.rects({ x: 0, y: 0, w: 10, h: 10 }, { x: 100, y: 100, w: 10, h: 10 }), false);
+---+});
+---+
+---+test('a press does not resolve a hit on the same frame (real startup delay)', () => {
+---+  const { context, attacker, defender } = fixture();
+---+  context.melee(attacker, 'light');
+---+  context.resolveMeleeHit(attacker, defender);
+---+  assert.equal(attacker.hitResolved, false);
+---+  assert.equal(defender.hp, 100);
+---+});
+---+
+---+test('a light attack in range connects once elapsed time enters the active window', () => {
+---+  const { context, attacker, defender } = fixture();
+---+  context.melee(attacker, 'light');
+---+  let hitFrame = null;
+---+  for (let i = 0; i < 20; i += 1) {
+---+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+---+    context.resolveMeleeHit(attacker, defender);
+---+    if (attacker.hitResolved && hitFrame === null) hitFrame = i;
+---+  }
+---+  assert.ok(hitFrame !== null, 'expected the attack to connect before recovery ended');
+---+  const elapsedAtHit = attacker.actionDuration - (attacker.actionDuration - (hitFrame + 1) / 60);
+---+  assert.ok(elapsedAtHit >= attacker.atkStartup, 'hit should not land before startup ends');
+---+  assert.ok(elapsedAtHit < attacker.atkActiveEnd, 'hit should not land after the active window closes');
+---+  assert.ok(defender.hp < 100, 'defender should have taken damage');
+---+});
+---+
+---+test('a light attack only resolves once per press (no double-hit within the active window)', () => {
+---+  const { context, attacker, defender } = fixture();
+---+  context.melee(attacker, 'light');
+---+  for (let i = 0; i < 20; i += 1) {
+---+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+---+    context.resolveMeleeHit(attacker, defender);
+---+  }
+---+  const hpAfterFirstResolution = defender.hp;
+---+  for (let i = 0; i < 10; i += 1) {
+---+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+---+    context.resolveMeleeHit(attacker, defender);
+---+  }
+---+  assert.equal(defender.hp, hpAfterFirstResolution);
+---+});
+---+
+---+test('an out-of-range light attack never resolves a hit', () => {
+---+  const { context, attacker, defender } = fixture();
+---+  defender.x = attacker.x + 1000;
+---+  context.melee(attacker, 'light');
+---+  for (let i = 0; i < 20; i += 1) {
+---+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+---+    context.resolveMeleeHit(attacker, defender);
+---+  }
+---+  assert.equal(attacker.hitResolved, false);
+---+  assert.equal(defender.hp, 100);
+---+});
+---diff --git a/tests/legacy/tier2-combat.test.mjs b/tests/legacy/tier2-combat.test.mjs
+---new file mode 100644
+---index 0000000..c559ae6
+------ /dev/null
+---+++ b/tests/legacy/tier2-combat.test.mjs
+---@@ -0,0 +1,142 @@
+---+import { test } from 'node:test';
+---+import assert from 'node:assert/strict';
+---+import { readFileSync } from 'node:fs';
+---+import vm from 'node:vm';
+---+
+---+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+---+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function projectile('));
+---+
+---+function makeContext() {
+---+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+---+  const context = vm.createContext({ sfx() {}, match });
+---+  vm.runInContext(combatSource, context);
+---+  return context;
+---+}
+---+function fighter(x, facing, extra = {}) {
+---+  return Object.assign({
+---+    d: { id: 'saja', size: 306, accent: '#fff', power: 1, defense: 1 },
+---+    x, y: 628, facing, vx: 0, vy: 0, grounded: true, crouching: false, block: false,
+---+    stun: 0, hp: 100, meter: 0, combo: 0, lastHit: undefined, attackId: 0,
+---+  }, extra);
+---+}
+---+
+---+test('hit() pushes both fighters apart, attacker less than defender', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1);
+---+  context.hit(a, d, 10, 8, -2, 0.2, '#fff');
+---+  assert.ok(d.vx > 0, 'defender pushed away from attacker');
+---+  assert.ok(a.vx < 0, 'attacker pushed away from defender');
+---+});
+---+
+---+test('pushback on block is stronger than pushback on hit (prevents block infinites)', () => {
+---+  const hitCtx = makeContext();
+---+  const a1 = fighter(400, 1), d1 = fighter(460, -1);
+---+  hitCtx.hit(a1, d1, 10, 8, -2, 0.2, '#fff');
+---+  const blockCtx = makeContext();
+---+  const a2 = fighter(400, 1), d2 = fighter(460, -1, { block: true, facing: -1 });
+---+  blockCtx.hit(a2, d2, 10, 8, -2, 0.2, '#fff');
+---+  assert.ok(Math.abs(a2.vx) > Math.abs(a1.vx));
+---+});
+---+
+---+test('damage scales down across a chained combo and floors at 50%', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1);
+---+  const dmgs = [];
+---+  let prevHp = d.hp;
+---+  for (let i = 0; i < 6; i += 1) {
+---+    a.attackId += 1;
+---+    context.hit(a, d, 10, 4, -2, 0.5, '#fff');
+---+    dmgs.push(prevHp - d.hp);
+---+    prevHp = d.hp;
+---+  }
+---+  for (let i = 1; i < dmgs.length; i += 1) assert.ok(dmgs[i] <= dmgs[i - 1], `hit ${i} should not deal more than hit ${i - 1}`);
+---+  assert.ok(dmgs[dmgs.length - 1] >= 4.9 && dmgs[dmgs.length - 1] <= 5.1, 'damage should floor around 50% of base');
+---+});
+---+
+---+test('a fresh hit (defender not currently stunned) is not scaled', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1);
+---+  context.hit(a, d, 10, 4, -2, 0.01, '#fff');
+---+  const hpAfterFirst = d.hp;
+---+  d.stun = 0;
+---+  a.attackId += 1;
+---+  context.hit(a, d, 10, 4, -2, 0.01, '#fff');
+---+  assert.equal(hpAfterFirst - d.hp, hpAfterFirst - (hpAfterFirst - 10), 'second unchained hit should deal full base damage again');
+---+});
+---+
+---+test('an overhead attack beats a crouching block', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1, { block: true, crouching: true, facing: -1 });
+---+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'overhead');
+---+  assert.ok(d.hp < 95, 'overhead should not be blocked by a crouching defender');
+---+});
+---+
+---+test('an overhead attack is still blocked standing', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1, { block: true, crouching: false, facing: -1 });
+---+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'overhead');
+---+  assert.ok(d.hp > 95, 'overhead should be blocked by a standing defender');
+---+});
+---+
+---+test('a low attack beats a standing block', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1, { block: true, crouching: false, facing: -1 });
+---+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'low');
+---+  assert.ok(d.hp < 95, 'low should not be blocked by a standing defender');
+---+});
+---+
+---+test('a low attack is still blocked crouching', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1, { block: true, crouching: true, facing: -1 });
+---+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'low');
+---+  assert.ok(d.hp > 95, 'low should be blocked by a crouching defender');
+---+});
+---+
+---+test('a mid attack is blocked regardless of stance', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1);
+---+  const standing = fighter(460, -1, { block: true, crouching: false, facing: -1 });
+---+  const crouched = fighter(460, -1, { block: true, crouching: true, facing: -1 });
+---+  context.hit(a, standing, 10, 4, -2, 0.2, '#fff', false, 'mid');
+---+  a.attackId += 1;
+---+  context.hit(a, crouched, 10, 4, -2, 0.2, '#fff', false, 'mid');
+---+  assert.ok(standing.hp > 95 && crouched.hp > 95);
+---+});
+---+
+---+test('a throw in range beats block and applies a hard knockdown', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(440, -1, { block: true, facing: -1 });
+---+  context.throwAttempt(a, d);
+---+  assert.equal(a.action, 'throw');
+---+  assert.equal(d.action, 'thrown');
+---+  assert.ok(d.hp < 100);
+---+  assert.equal(d.knockdown, true);
+---+  assert.equal(d.grounded, false);
+---+});
+---+
+---+test('a throw attempt out of range whiffs without affecting the opponent, with shorter recovery than a landed throw', () => {
+---+  const landed = makeContext();
+---+  const a1 = fighter(400, 1), d1 = fighter(440, -1);
+---+  landed.throwAttempt(a1, d1);
+---+  const whiffed = makeContext();
+---+  const a2 = fighter(400, 1), d2 = fighter(900, -1);
+---+  whiffed.throwAttempt(a2, d2);
+---+  assert.equal(d2.hp, 100);
+---+  assert.equal(d2.action, undefined);
+---+  assert.ok(a2.timer < a1.timer, 'a whiffed throw should recover faster than a landed one');
+---+});
+---+
+---+test('wake-up invincibility prevents a downed fighter from being hit', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1, { wakeupInvincible: true });
+---+  const landed = context.hit(a, d, 20, 4, -2, 0.2, '#fff');
+---+  assert.equal(landed, false);
+---+  assert.equal(d.hp, 100);
+---+});
+---+
+---+test('a hit landing on an airborne defender flags a hard knockdown', () => {
+---+  const context = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1, { grounded: false });
+---+  context.hit(a, d, 10, 4, -2, 0.2, '#fff');
+---+  assert.equal(d.knockdown, true);
+---+});
+---diff --git a/tests/legacy/tier3-polish.test.mjs b/tests/legacy/tier3-polish.test.mjs
+---new file mode 100644
+---index 0000000..7eba1a6
+------ /dev/null
+---+++ b/tests/legacy/tier3-polish.test.mjs
+---@@ -0,0 +1,91 @@
+---+import { test } from 'node:test';
+---+import assert from 'node:assert/strict';
+---+import { readFileSync } from 'node:fs';
+---+import vm from 'node:vm';
+---+
+---+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+---+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function updateProjectiles('));
+---+
+---+function makeContext() {
+---+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+---+  const context = vm.createContext({ sfx() {}, match, FLOOR: 628, W: 1280 });
+---+  vm.runInContext(combatSource, context);
+---+  return { context, match };
+---+}
+---+function fighter(x, facing, extra = {}) {
+---+  return Object.assign({
+---+    d: { id: 'saja', size: 306, speed: 4.8, jump: 12, accent: '#fff', power: 1, defense: 1 },
+---+    x, y: 628, facing, vx: 0, vy: 0, grounded: true, crouching: false, block: false,
+---+    stun: 0, hp: 100, meter: 0, combo: 0, lastHit: undefined, attackId: 0,
+---+    timer: 0, cool: 0, flash: 0, trail: [],
+---+  }, extra);
+---+}
+---+
+---+test('a heavier hit produces more hitstop and screen shake than a light one', () => {
+---+  const { context: c1, match: m1 } = makeContext();
+---+  c1.hit(fighter(400, 1), fighter(460, -1), 6, 4, -2, 0.2, '#fff');
+---+  const { context: c2, match: m2 } = makeContext();
+---+  c2.hit(fighter(400, 1), fighter(460, -1), 17, 8, -10, 0.45, '#fff');
+---+  assert.ok(m2.hitstop > m1.hitstop);
+---+  assert.ok(m2.shake > m1.shake);
+---+});
+---+
+---+test('canAct is false deep in a knockdown, true in the closing reversal window, true when neutral', () => {
+---+  const { context } = makeContext();
+---+  assert.equal(context.canAct({ action: 'down', timer: 0.5, stun: 0.5, cool: 0.5 }), false);
+---+  assert.equal(context.canAct({ action: 'down', timer: 0.1, stun: 0.1, cool: 0.1 }), true);
+---+  assert.equal(context.canAct({ action: 'idle', timer: 0, stun: 0, cool: 0 }), true);
+---+});
+---+
+---+test('a reversal thrown from the wake-up window clears wake-up invincibility once it commits', () => {
+---+  const { context } = makeContext();
+---+  const f = fighter(400, 1, { action: 'down', timer: 0.1, stun: 0.1, cool: 0.1, wakeupInvincible: true });
+---+  assert.ok(context.canAct(f));
+---+  context.melee(f, 'light', false, false);
+---+  assert.equal(f.wakeupInvincible, false);
+---+  assert.equal(f.action, 'light');
+---+});
+---+
+---+test('a button press during an unactionable frame is buffered and fires the instant the fighter becomes actionable', () => {
+---+  const { context } = makeContext();
+---+  const f = fighter(400, 1, { action: 'block', stun: 0.05, cool: 0.05 });
+---+  const o = fighter(460, -1);
+---+  let firedOnFrame = null;
+---+  for (let i = 0; i < 20; i += 1) {
+---+    context.updateFighter(f, o, { pressed: { light: i === 0 } }, 1 / 60);
+---+    if (f.action === 'light' && firedOnFrame === null) firedOnFrame = i;
+---+  }
+---+  assert.ok(firedOnFrame !== null && firedOnFrame > 0, 'buffered press should fire a few frames later, not be dropped');
+---+});
+---+
+---+test('a press outside the buffer window is dropped, not fired late', () => {
+---+  const { context } = makeContext();
+---+  const f = fighter(400, 1, { action: 'block', stun: 0.3, cool: 0.3 });
+---+  const o = fighter(460, -1);
+---+  for (let i = 0; i < 5; i += 1) context.updateFighter(f, o, { pressed: { light: i === 0 } }, 1 / 60);
+---+  for (let i = 0; i < 20; i += 1) context.updateFighter(f, o, { pressed: {} }, 1 / 60);
+---+  assert.notEqual(f.action, 'light');
+---+});
+---+
+---+test('separate light-then-heavy presses a few frames apart do not misfire as a throw', () => {
+---+  const { context } = makeContext();
+---+  const f = fighter(400, 1, { action: 'block', stun: 0.05, cool: 0.05 });
+---+  const o = fighter(900, -1);
+---+  context.updateFighter(f, o, { pressed: { light: true } }, 1 / 60);
+---+  context.updateFighter(f, o, { pressed: { heavy: true } }, 1 / 60);
+---+  for (let i = 0; i < 10; i += 1) context.updateFighter(f, o, { pressed: {} }, 1 / 60);
+---+  assert.notEqual(f.action, 'throw');
+---+});
+---+
+---+test('a true simultaneous light+heavy press still buffers into a throw attempt', () => {
+---+  const { context } = makeContext();
+---+  const f = fighter(400, 1, { action: 'block', stun: 0.05, cool: 0.05 });
+---+  const o = fighter(430, -1);
+---+  context.updateFighter(f, o, { pressed: { light: true, heavy: true } }, 1 / 60);
+---+  let firedOnFrame = null;
+---+  for (let i = 0; i < 10; i += 1) {
+---+    context.updateFighter(f, o, { pressed: {} }, 1 / 60);
+---+    if (f.action === 'throw' && firedOnFrame === null) firedOnFrame = i;
+---+  }
+---+  assert.ok(firedOnFrame !== null);
+---+});
+--diff --git a/mamacha-reassessment-fixes.patch b/mamacha-reassessment-fixes.patch
+--deleted file mode 100644
+--index 0a61fbb..0000000
+----- a/mamacha-reassessment-fixes.patch
+--+++ /dev/null
+--@@ -1,735 +0,0 @@
+---diff --git a/dist/game.js b/dist/game.js
+---index 90090f9..34453ed 100644
+------ a/dist/game.js
+---+++ b/dist/game.js
+---@@ -357,7 +357,7 @@
+---     if(defender.stun>0&&attacker.attackId===defender.lastHit)return false;defender.lastHit=attacker.attackId;
+---     const guardOk=guardType==='overhead'?!defender.crouching:guardType==='low'?defender.crouching:true;
+---     const blocked=defender.block&&defender.grounded&&guardOk&&Math.sign(attacker.x-defender.x)===defender.facing;
+----    const chain=blocked?(defender.hitsTaken||0):(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
+---+    const chain=blocked?0:(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
+---     const comboScale=blocked?1:Math.max(.5,1-.1*(chain-1));
+---     damage*=attacker.d.power/defender.d.defense*comboScale;
+---     const weight=Math.max(.6,Math.min(1.6,damage/10));
+---@@ -454,7 +454,7 @@
+---       else{const dir=(c.right?1:0)-(c.left?1:0);f.vx+=dir*f.d.speed*.34;f.vx=Math.max(-f.d.speed,Math.min(f.d.speed,f.vx));if(dir)f.action='walk';else if(f.grounded)f.action=f.block?'block':'idle';if(c.pressed?.up&&f.grounded){f.vy=-f.d.jump;f.grounded=false;f.action='jump';f.actionDuration=.7;sfx('jump')}}
+---     }
+---     resolveMeleeHit(f,o);
+----    if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
+---+    if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff',false,'overhead')}}
+---     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
+---     if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.knockdown){f.knockdown=false;f.action='down';f.timer=.5;f.actionDuration=.5;f.cool=.5;f.stun=.5;f.wakeupInvincible=true}else if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+---     f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded){f.wakeupInvincible=false;f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';}
+---diff --git a/mamacha-all-tiers.patch b/mamacha-all-tiers.patch
+---deleted file mode 100644
+---index 5de262f..0000000
+------ a/mamacha-all-tiers.patch
+---+++ /dev/null
+---@@ -1,649 +0,0 @@
+----diff --git a/dist/game.js b/dist/game.js
+----index 204c877..fe0d403 100644
+------- a/dist/game.js
+----+++ b/dist/game.js
+----@@ -349,26 +349,61 @@
+----     screen='fight';playMusic(roundMusic(1),true);sfx('round');document.querySelector('#status').textContent=match.stage.name;
+----   }
+---- 
+-----  function rects(a,b){return a.x<a.w+b.x&&a.x+a.w>b.x&&a.y<a.h+b.y&&a.y+a.h>b.y}
+----+  function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+----   function hurtbox(f){const scale=f.d.size/310,wide=((f.d.id==='benita'||f.d.id==='shabuka')?104:82)*scale,height=(f.crouching?142:232)*scale;return{x:f.x-wide/2,y:f.y-height-6,w:wide,h:height}}
+----   function addParticles(x,y,color,n=12,power=5){for(let i=0;i<n;i++)match.particles.push({x,y,vx:(Math.random()*2-1)*power,vy:(Math.random()*-1)*power-1,life:.25+Math.random()*.35,color,size:3+Math.random()*7})}
+-----  function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false){
+----+  function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false,guardType='mid'){
+----+    if(defender.wakeupInvincible)return false;
+----     if(defender.stun>0&&attacker.attackId===defender.lastHit)return false;defender.lastHit=attacker.attackId;
+-----    const blocked=defender.block&&defender.grounded&&Math.sign(attacker.x-defender.x)===defender.facing;
+-----    damage*=attacker.d.power/defender.d.defense;defender.hp=Math.max(0,defender.hp-damage*(blocked?.24:1));defender.vx=kx*Math.sign(defender.x-attacker.x)*(blocked?.35:1);defender.vy=blocked?0:ky;defender.stun=forceStun?1.3:(blocked?.11:stun);defender.action=blocked?'block':'hurt';defender.actionDuration=defender.stun;defender.flash=.12;attacker.meter=Math.min(100,attacker.meter+damage*2);attacker.combo++;
+-----    addParticles(defender.x,defender.y-95,blocked?'#76e5ff':color,blocked?7:15,blocked?3:6);match.shake=Math.max(match.shake,blocked?4:9);match.hitstop=blocked?.035:.07;sfx(blocked?'block':damage>=12?'heavy':'hit',.94+Math.random()*.1);
+----+    const guardOk=guardType==='overhead'?!defender.crouching:guardType==='low'?defender.crouching:true;
+----+    const blocked=defender.block&&defender.grounded&&guardOk&&Math.sign(attacker.x-defender.x)===defender.facing;
+----+    const chain=blocked?(defender.hitsTaken||0):(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
+----+    const comboScale=blocked?1:Math.max(.5,1-.1*(chain-1));
+----+    damage*=attacker.d.power/defender.d.defense*comboScale;
+----+    const weight=Math.max(.6,Math.min(1.6,damage/10));
+----+    const knockDir=Math.sign(defender.x-attacker.x)||1;
+----+    defender.hp=Math.max(0,defender.hp-damage*(blocked?.24:1));defender.vx=kx*knockDir*(blocked?.35:1);attacker.vx=-kx*knockDir*(blocked?.5:.25);defender.vy=blocked?0:ky;
+----+    if(!blocked&&!defender.grounded)defender.knockdown=true;
+----+    defender.stun=forceStun?1.3:(blocked?.11:stun);defender.action=blocked?'block':'hurt';defender.actionDuration=defender.stun;defender.flash=.12;attacker.meter=Math.min(100,attacker.meter+damage*2);attacker.combo=chain;
+----+    addParticles(defender.x,defender.y-95,blocked?'#76e5ff':color,blocked?Math.round(7*weight):Math.round(15*weight),blocked?3:Math.round(6*weight));
+----+    match.shake=Math.max(match.shake,(blocked?4:7)*weight);match.hitstop=Math.max(match.hitstop,(blocked?.03:.045)*weight);
+----+    sfx(blocked?'block':damage>=12?'heavy':'hit',.94+Math.random()*.1);
+----     if(defender.hp<=0){match.state='ko';match.stateTime=2.5;match.winner=attacker;attacker.rounds++;sfx('ko')}
+----     return true;
+----   }
+---- 
+-----  function melee(f,o,kind){
+-----    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310,reach=(stretch?250:heavy?112:78)*scale,damage=heavy?11:6;f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+-----    const hb={x:f.facing>0?f.x+20:f.x-reach-20,y:f.y-(heavy?132:118)*scale,w:reach,h:(heavy?86:65)*scale};
+-----    if(rects(hb,hurtbox(o)))hit(f,o,damage,heavy?8:4,heavy?-5:-2,heavy?.38:.2,f.d.accent);
+----+  const REVERSAL_WINDOW=.12;
+----+  function canAct(f){return (f.stun<=0&&f.cool<=0)||(f.action==='down'&&f.timer>0&&f.timer<=REVERSAL_WINDOW)}
+----+  function melee(f,kind,crouching,airborne){
+----+    f.wakeupInvincible=false;
+----+    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310;
+----+    f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;f.hitResolved=false;
+----+    f.atkStartup=heavy?.09:.05;f.atkActiveEnd=f.atkStartup+(heavy?.1:.07);
+----+    f.atkReach=(stretch?250:heavy?112:78)*scale;f.atkYOffset=(heavy?132:118)*scale;f.atkH=(heavy?86:65)*scale;
+----+    f.atkDamage=heavy?11:6;f.atkKx=heavy?8:4;f.atkKy=heavy?-5:-2;f.atkStun=heavy?.38:.2;
+----+    f.atkGuardType=airborne?'overhead':(crouching?'low':'mid');
+----+    sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+----+  }
+----+  function resolveMeleeHit(f,o){
+----+    if((f.action!=='light'&&f.action!=='heavy')||f.hitResolved)return;
+----+    const elapsed=f.actionDuration-f.timer;
+----+    if(elapsed<f.atkStartup||elapsed>=f.atkActiveEnd)return;
+----+    const hb={x:f.facing>0?f.x+20:f.x-f.atkReach-20,y:f.y-f.atkYOffset,w:f.atkReach,h:f.atkH};
+----+    if(rects(hb,hurtbox(o))){hit(f,o,f.atkDamage,f.atkKx,f.atkKy,f.atkStun,f.d.accent,false,f.atkGuardType);f.hitResolved=true}
+----+  }
+----+  function throwAttempt(f,o){
+----+    f.wakeupInvincible=false;
+----+    const range=90*(f.d.size/310),inRange=Math.abs(o.x-f.x)<=range&&Math.abs(o.y-f.y)<=40&&o.grounded&&f.grounded;
+----+    f.action='throw';f.timer=inRange?.5:.3;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;
+----+    if(!inRange)return;
+----+    o.action='thrown';o.timer=.6;o.actionDuration=.6;o.cool=.6;o.stun=.6;o.grounded=false;o.vy=-6;o.vx=f.facing*7;
+----+    o.hp=Math.max(0,o.hp-8);o.knockdown=true;o.lastHit=f.attackId;f.meter=Math.min(100,f.meter+10);
+----+    addParticles(o.x,o.y-100,'#ffe27a',10,5);match.shake=Math.max(match.shake,6);sfx('heavy',.9,.9);
+----+    if(o.hp<=0){match.state='ko';match.stateTime=2.5;match.winner=f;f.rounds++;sfx('ko')}
+----   }
+----   function projectile(f,opts={}){match.projectiles.push({owner:f,x:f.x+f.facing*60,y:f.y-(opts.y||105),vx:f.facing*(opts.speed||8),vy:opts.vy||0,w:opts.w||50,h:opts.h||28,life:opts.life||1.7,damage:opts.damage||10,kind:opts.kind||'wave',color:opts.color||f.d.accent,returning:opts.returning||false,stun:opts.stun||false,age:0});sfx('projectile',opts.kind==='bullet'?1.28:1);}
+----   function special(f,o,n){
+-----    if(f.cool>0||f.stun>0)return;f.attackId++;f.combo=0;f.action=n===1?'special1':'special2';f.timer=.65;f.actionDuration=.65;f.cool=.55;
+----+    if(!canAct(f))return;f.wakeupInvincible=false;f.attackId++;f.combo=0;f.action=n===1?'special1':'special2';f.timer=.65;f.actionDuration=.65;f.cool=.55;
+----     const k=f.d.kind;
+----     if(n===1){
+----       if(k==='whip'){const hb={x:f.facing>0?f.x+20:f.x-250,y:f.y-135,w:250,h:70};if(rects(hb,hurtbox(o)))hit(f,o,13,7,-3,.3,'#ff5ed0');match.projectiles.push({owner:f,x:f.x,y:f.y-115,vx:0,vy:0,w:250,h:10,life:.22,damage:0,kind:'whip',color:'#ff5ed0',age:0})}
+----@@ -392,27 +427,39 @@
+----     sfx('special',n===1?1.06:.91,.85);
+----   }
+---- 
+-----  const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut'];
+----+  const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut','throw'];
+----+  function isFacingLocked(f){return (AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0}
+----   function aiControls(f,o,dt){
+-----    f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
+----+    f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<90){const r=Math.random();if(r<.14){f.ai.pressed.light=true;f.ai.pressed.heavy=true}else if(r<.5)f.ai.pressed.light=true;else if(r<.76)f.ai.pressed.heavy=true;else if(r<.9)f.ai.pressed.sp1=true;else f.ai.pressed.sp2=true}else if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
+----     return f.ai||{pressed:{}};
+----   }
+---- 
+----   function updateFighter(f,o,c,dt){
+-----    const facingLocked=AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0||f.stun>0;
+-----    if(!facingLocked)f.facing=o.x>=f.x?1:-1;
+----+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+----+    const wasCrouching=f.crouching,wasGrounded=f.grounded;
+----     f.cool=Math.max(0,f.cool-dt);f.timer=Math.max(0,f.timer-dt);f.stun=Math.max(0,f.stun-dt);f.flash=Math.max(0,f.flash-dt);f.block=!!c.block&&f.stun<=0;f.crouching=false;
+-----    if(f.stun<=0&&f.cool<=0&&match.state==='fight'){
+-----      if(c.pressed?.light)melee(f,o,'light');else if(c.pressed?.heavy)melee(f,o,'heavy');else if(c.pressed?.sp1)special(f,o,1);else if(c.pressed?.sp2)special(f,o,2);
+----+    const BUF=.08;
+----+    f.bufThrow=(c.pressed?.light&&c.pressed?.heavy)?BUF:Math.max(0,(f.bufThrow||0)-dt);
+----+    f.bufLight=c.pressed?.light?BUF:Math.max(0,(f.bufLight||0)-dt);
+----+    f.bufHeavy=c.pressed?.heavy?BUF:Math.max(0,(f.bufHeavy||0)-dt);
+----+    f.bufSp1=c.pressed?.sp1?BUF:Math.max(0,(f.bufSp1||0)-dt);
+----+    f.bufSp2=c.pressed?.sp2?BUF:Math.max(0,(f.bufSp2||0)-dt);
+----+    if(canAct(f)&&match.state==='fight'){
+----+      if(f.bufThrow>0){f.bufThrow=0;f.bufLight=0;f.bufHeavy=0;throwAttempt(f,o);}
+----+      else if(f.bufLight>0){f.bufLight=0;melee(f,'light',wasCrouching,!wasGrounded);}
+----+      else if(f.bufHeavy>0){f.bufHeavy=0;melee(f,'heavy',wasCrouching,!wasGrounded);}
+----+      else if(f.bufSp1>0){f.bufSp1=0;special(f,o,1);}
+----+      else if(f.bufSp2>0){f.bufSp2=0;special(f,o,2);}
+----       else if(c.down&&f.grounded){f.crouching=true;f.vx*=.5;f.action='crouch'}
+----       else{const dir=(c.right?1:0)-(c.left?1:0);f.vx+=dir*f.d.speed*.34;f.vx=Math.max(-f.d.speed,Math.min(f.d.speed,f.vx));if(dir)f.action='walk';else if(f.grounded)f.action=f.block?'block':'idle';if(c.pressed?.up&&f.grounded){f.vy=-f.d.jump;f.grounded=false;f.action='jump';f.actionDuration=.7;sfx('jump')}}
+----     }
+----+    resolveMeleeHit(f,o);
+----     if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
+----     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
+-----    if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+-----    f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded)f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';
+----+    if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.knockdown){f.knockdown=false;f.action='down';f.timer=.5;f.actionDuration=.5;f.cool=.5;f.stun=.5;f.wakeupInvincible=true}else if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+----+    f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded){f.wakeupInvincible=false;f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';}
+----     if(f.grounded&&c.down&&f.stun<=0&&f.cool<=0){f.crouching=true;f.action='crouch'}
+-----    if(!((AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0))f.facing=o.x>=f.x?1:-1;
+----+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+----     f.trail.unshift({x:f.x,y:f.y,frame:f.animFrame||0});if(f.trail.length>6)f.trail.pop();
+----   }
+---- 
+----diff --git a/mamacha-tier1-slice1.patch b/mamacha-tier1-slice1.patch
+----deleted file mode 100644
+----index e061b2f..0000000
+------- a/mamacha-tier1-slice1.patch
+----+++ /dev/null
+----@@ -1,171 +0,0 @@
+-----diff --git a/dist/game.js b/dist/game.js
+-----index 204c877..69f0cc5 100644
+-------- a/dist/game.js
+-----+++ b/dist/game.js
+-----@@ -349,7 +349,7 @@
+-----     screen='fight';playMusic(roundMusic(1),true);sfx('round');document.querySelector('#status').textContent=match.stage.name;
+-----   }
+----- 
+------  function rects(a,b){return a.x<a.w+b.x&&a.x+a.w>b.x&&a.y<a.h+b.y&&a.y+a.h>b.y}
+-----+  function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+-----   function hurtbox(f){const scale=f.d.size/310,wide=((f.d.id==='benita'||f.d.id==='shabuka')?104:82)*scale,height=(f.crouching?142:232)*scale;return{x:f.x-wide/2,y:f.y-height-6,w:wide,h:height}}
+-----   function addParticles(x,y,color,n=12,power=5){for(let i=0;i<n;i++)match.particles.push({x,y,vx:(Math.random()*2-1)*power,vy:(Math.random()*-1)*power-1,life:.25+Math.random()*.35,color,size:3+Math.random()*7})}
+-----   function hit(attacker,defender,damage,kx=5,ky=-2,stun=.22,color='#ffd45a',forceStun=false){
+-----@@ -361,10 +361,20 @@
+-----     return true;
+-----   }
+----- 
+------  function melee(f,o,kind){
+------    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310,reach=(stretch?250:heavy?112:78)*scale,damage=heavy?11:6;f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+------    const hb={x:f.facing>0?f.x+20:f.x-reach-20,y:f.y-(heavy?132:118)*scale,w:reach,h:(heavy?86:65)*scale};
+------    if(rects(hb,hurtbox(o)))hit(f,o,damage,heavy?8:4,heavy?-5:-2,heavy?.38:.2,f.d.accent);
+-----+  function melee(f,kind){
+-----+    const heavy=kind==='heavy',stretch=heavy&&f.d.kind==='stretch',scale=f.d.size/310;
+-----+    f.action=kind;f.timer=heavy?.46:.27;f.actionDuration=f.timer;f.cool=f.timer;f.attackId++;f.hitResolved=false;
+-----+    f.atkStartup=heavy?.09:.05;f.atkActiveEnd=f.atkStartup+(heavy?.1:.07);
+-----+    f.atkReach=(stretch?250:heavy?112:78)*scale;f.atkYOffset=(heavy?132:118)*scale;f.atkH=(heavy?86:65)*scale;
+-----+    f.atkDamage=heavy?11:6;f.atkKx=heavy?8:4;f.atkKy=heavy?-5:-2;f.atkStun=heavy?.38:.2;
+-----+    sfx('whoosh',heavy?.82:1.14,heavy?.8:.58);
+-----+  }
+-----+  function resolveMeleeHit(f,o){
+-----+    if((f.action!=='light'&&f.action!=='heavy')||f.hitResolved)return;
+-----+    const elapsed=f.actionDuration-f.timer;
+-----+    if(elapsed<f.atkStartup||elapsed>=f.atkActiveEnd)return;
+-----+    const hb={x:f.facing>0?f.x+20:f.x-f.atkReach-20,y:f.y-f.atkYOffset,w:f.atkReach,h:f.atkH};
+-----+    if(rects(hb,hurtbox(o))){hit(f,o,f.atkDamage,f.atkKx,f.atkKy,f.atkStun,f.d.accent);f.hitResolved=true}
+-----   }
+-----   function projectile(f,opts={}){match.projectiles.push({owner:f,x:f.x+f.facing*60,y:f.y-(opts.y||105),vx:f.facing*(opts.speed||8),vy:opts.vy||0,w:opts.w||50,h:opts.h||28,life:opts.life||1.7,damage:opts.damage||10,kind:opts.kind||'wave',color:opts.color||f.d.accent,returning:opts.returning||false,stun:opts.stun||false,age:0});sfx('projectile',opts.kind==='bullet'?1.28:1);}
+-----   function special(f,o,n){
+-----@@ -393,26 +403,27 @@
+-----   }
+----- 
+-----   const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut'];
+-----+  function isFacingLocked(f){return (AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0}
+-----   function aiControls(f,o,dt){
+-----     f.aiClock-=dt;if(f.aiClock<=0){f.aiClock=.12+Math.random()*.2;const dist=o.x-f.x;const jump=Math.random()<.035;f.ai={left:dist<-95,right:dist>95,up:jump,block:AI_ATTACK_ACTIONS.includes(o.action)&&Math.random()<.55,light:false,heavy:false,sp1:false,sp2:false,pressed:{up:jump}};if(Math.abs(dist)<125){const r=Math.random();f.ai.pressed[r<.45?'light':r<.72?'heavy':r<.87?'sp1':'sp2']=true}else if(Math.random()<.1)f.ai.pressed[Math.random()<.5?'sp1':'sp2']=true}
+-----     return f.ai||{pressed:{}};
+-----   }
+----- 
+-----   function updateFighter(f,o,c,dt){
+------    const facingLocked=AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0||f.stun>0;
+------    if(!facingLocked)f.facing=o.x>=f.x?1:-1;
+-----+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+-----     f.cool=Math.max(0,f.cool-dt);f.timer=Math.max(0,f.timer-dt);f.stun=Math.max(0,f.stun-dt);f.flash=Math.max(0,f.flash-dt);f.block=!!c.block&&f.stun<=0;f.crouching=false;
+-----     if(f.stun<=0&&f.cool<=0&&match.state==='fight'){
+------      if(c.pressed?.light)melee(f,o,'light');else if(c.pressed?.heavy)melee(f,o,'heavy');else if(c.pressed?.sp1)special(f,o,1);else if(c.pressed?.sp2)special(f,o,2);
+-----+      if(c.pressed?.light)melee(f,'light');else if(c.pressed?.heavy)melee(f,'heavy');else if(c.pressed?.sp1)special(f,o,1);else if(c.pressed?.sp2)special(f,o,2);
+-----       else if(c.down&&f.grounded){f.crouching=true;f.vx*=.5;f.action='crouch'}
+-----       else{const dir=(c.right?1:0)-(c.left?1:0);f.vx+=dir*f.d.speed*.34;f.vx=Math.max(-f.d.speed,Math.min(f.d.speed,f.vx));if(dir)f.action='walk';else if(f.grounded)f.action=f.block?'block':'idle';if(c.pressed?.up&&f.grounded){f.vy=-f.d.jump;f.grounded=false;f.action='jump';f.actionDuration=.7;sfx('jump')}}
+-----     }
+-----+    resolveMeleeHit(f,o);
+-----     if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
+-----     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
+-----     if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
+-----     f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded)f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';
+-----     if(f.grounded&&c.down&&f.stun<=0&&f.cool<=0){f.crouching=true;f.action='crouch'}
+------    if(!((AI_ATTACK_ACTIONS.includes(f.action)&&f.timer>0)||f.stun>0))f.facing=o.x>=f.x?1:-1;
+-----+    if(!isFacingLocked(f))f.facing=o.x>=f.x?1:-1;
+-----     f.trail.unshift({x:f.x,y:f.y,frame:f.animFrame||0});if(f.trail.length>6)f.trail.pop();
+-----   }
+----- 
+-----diff --git a/tests/legacy/facing-walk.test.mjs b/tests/legacy/facing-walk.test.mjs
+-----index 5f12758..a5bb163 100644
+-------- a/tests/legacy/facing-walk.test.mjs
+-----+++ b/tests/legacy/facing-walk.test.mjs
+-----@@ -8,8 +8,9 @@ const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8'
+----- const updateSource = game.slice(game.indexOf('  function updateFighter('), game.indexOf('  function updateProjectiles('));
+----- function fixture(action='idle', facing=1) {
+-----   const context = vm.createContext({ AI_ATTACK_ACTIONS:['light','heavy','special1','special2','roll','jumpattack','uppercut'],
+-----+    isFacingLocked(f){return (['light','heavy','special1','special2','roll','jumpattack','uppercut'].includes(f.action)&&f.timer>0)||f.stun>0},
+-----     match:{state:'fight'}, FLOOR:628, W:1280, sfx(){},
+------    melee(f,o,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){} });
+-----+    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){} });
+-----   vm.runInContext(updateSource, context);
+-----   const f={d:{speed:4.8,jump:12},x:400,y:628,vx:0,vy:0,grounded:true,facing,
+-----     action,timer:action==='idle'?0:.3,cool:action==='idle'?0:.3,stun:0,flash:0,trail:[]};
+-----diff --git a/tests/legacy/melee-frames.test.mjs b/tests/legacy/melee-frames.test.mjs
+-----new file mode 100644
+-----index 0000000..f9273dc
+-------- /dev/null
+-----+++ b/tests/legacy/melee-frames.test.mjs
+-----@@ -0,0 +1,80 @@
+-----+import { test } from 'node:test';
+-----+import assert from 'node:assert/strict';
+-----+import { readFileSync } from 'node:fs';
+-----+import vm from 'node:vm';
+-----+
+-----+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+-----+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function projectile('));
+-----+
+-----+function fixture() {
+-----+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+-----+  const context = vm.createContext({ sfx() {}, match });
+-----+  vm.runInContext(combatSource, context);
+-----+  const attacker = { d: { id: 'saja', size: 306, accent: '#fff', power: 1 }, x: 400, y: 628, facing: 1, stun: 0, lastHit: undefined, attackId: 0 };
+-----+  const defender = { d: { id: 'benita', size: 312, defense: 1 }, x: 460, y: 628, facing: -1, block: false, grounded: true, stun: 0, hp: 100, meter: 0, combo: 0 };
+-----+  return { context, attacker, defender };
+-----+}
+-----+
+-----+test('rects() detects overlap even when one box is much smaller than the other', () => {
+-----+  const { context } = fixture();
+-----+  // A short, narrow attack box against a tall hurtbox it genuinely overlaps.
+-----+  const attackBox = { x: 420, y: 511.5, w: 77, h: 64.2 };
+-----+  const hurtBox = { x: 407.7, y: 389, w: 104.6, h: 233 };
+-----+  assert.equal(context.rects(attackBox, hurtBox), true);
+-----+});
+-----+
+-----+test('rects() still rejects boxes that truly do not overlap', () => {
+-----+  const { context } = fixture();
+-----+  assert.equal(context.rects({ x: 0, y: 0, w: 10, h: 10 }, { x: 100, y: 100, w: 10, h: 10 }), false);
+-----+});
+-----+
+-----+test('a press does not resolve a hit on the same frame (real startup delay)', () => {
+-----+  const { context, attacker, defender } = fixture();
+-----+  context.melee(attacker, 'light');
+-----+  context.resolveMeleeHit(attacker, defender);
+-----+  assert.equal(attacker.hitResolved, false);
+-----+  assert.equal(defender.hp, 100);
+-----+});
+-----+
+-----+test('a light attack in range connects once elapsed time enters the active window', () => {
+-----+  const { context, attacker, defender } = fixture();
+-----+  context.melee(attacker, 'light');
+-----+  let hitFrame = null;
+-----+  for (let i = 0; i < 20; i += 1) {
+-----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+-----+    context.resolveMeleeHit(attacker, defender);
+-----+    if (attacker.hitResolved && hitFrame === null) hitFrame = i;
+-----+  }
+-----+  assert.ok(hitFrame !== null, 'expected the attack to connect before recovery ended');
+-----+  const elapsedAtHit = attacker.actionDuration - (attacker.actionDuration - (hitFrame + 1) / 60);
+-----+  assert.ok(elapsedAtHit >= attacker.atkStartup, 'hit should not land before startup ends');
+-----+  assert.ok(elapsedAtHit < attacker.atkActiveEnd, 'hit should not land after the active window closes');
+-----+  assert.ok(defender.hp < 100, 'defender should have taken damage');
+-----+});
+-----+
+-----+test('a light attack only resolves once per press (no double-hit within the active window)', () => {
+-----+  const { context, attacker, defender } = fixture();
+-----+  context.melee(attacker, 'light');
+-----+  for (let i = 0; i < 20; i += 1) {
+-----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+-----+    context.resolveMeleeHit(attacker, defender);
+-----+  }
+-----+  const hpAfterFirstResolution = defender.hp;
+-----+  for (let i = 0; i < 10; i += 1) {
+-----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+-----+    context.resolveMeleeHit(attacker, defender);
+-----+  }
+-----+  assert.equal(defender.hp, hpAfterFirstResolution);
+-----+});
+-----+
+-----+test('an out-of-range light attack never resolves a hit', () => {
+-----+  const { context, attacker, defender } = fixture();
+-----+  defender.x = attacker.x + 1000;
+-----+  context.melee(attacker, 'light');
+-----+  for (let i = 0; i < 20; i += 1) {
+-----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+-----+    context.resolveMeleeHit(attacker, defender);
+-----+  }
+-----+  assert.equal(attacker.hitResolved, false);
+-----+  assert.equal(defender.hp, 100);
+-----+});
+----diff --git a/tests/legacy/facing-walk.test.mjs b/tests/legacy/facing-walk.test.mjs
+----index 5f12758..0df0e1d 100644
+------- a/tests/legacy/facing-walk.test.mjs
+----+++ b/tests/legacy/facing-walk.test.mjs
+----@@ -8,8 +8,10 @@ const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8'
+---- const updateSource = game.slice(game.indexOf('  function updateFighter('), game.indexOf('  function updateProjectiles('));
+---- function fixture(action='idle', facing=1) {
+----   const context = vm.createContext({ AI_ATTACK_ACTIONS:['light','heavy','special1','special2','roll','jumpattack','uppercut'],
+----+    isFacingLocked(f){return (['light','heavy','special1','special2','roll','jumpattack','uppercut'].includes(f.action)&&f.timer>0)||f.stun>0},
+----+    canAct(f){return (f.stun<=0&&f.cool<=0)||(f.action==='down'&&f.timer>0&&f.timer<=.12)},
+----     match:{state:'fight'}, FLOOR:628, W:1280, sfx(){},
+-----    melee(f,o,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){} });
+----+    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){}, throwAttempt(){} });
+----   vm.runInContext(updateSource, context);
+----   const f={d:{speed:4.8,jump:12},x:400,y:628,vx:0,vy:0,grounded:true,facing,
+----     action,timer:action==='idle'?0:.3,cool:action==='idle'?0:.3,stun:0,flash:0,trail:[]};
+----diff --git a/tests/legacy/melee-frames.test.mjs b/tests/legacy/melee-frames.test.mjs
+----new file mode 100644
+----index 0000000..f9273dc
+------- /dev/null
+----+++ b/tests/legacy/melee-frames.test.mjs
+----@@ -0,0 +1,80 @@
+----+import { test } from 'node:test';
+----+import assert from 'node:assert/strict';
+----+import { readFileSync } from 'node:fs';
+----+import vm from 'node:vm';
+----+
+----+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+----+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function projectile('));
+----+
+----+function fixture() {
+----+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+----+  const context = vm.createContext({ sfx() {}, match });
+----+  vm.runInContext(combatSource, context);
+----+  const attacker = { d: { id: 'saja', size: 306, accent: '#fff', power: 1 }, x: 400, y: 628, facing: 1, stun: 0, lastHit: undefined, attackId: 0 };
+----+  const defender = { d: { id: 'benita', size: 312, defense: 1 }, x: 460, y: 628, facing: -1, block: false, grounded: true, stun: 0, hp: 100, meter: 0, combo: 0 };
+----+  return { context, attacker, defender };
+----+}
+----+
+----+test('rects() detects overlap even when one box is much smaller than the other', () => {
+----+  const { context } = fixture();
+----+  // A short, narrow attack box against a tall hurtbox it genuinely overlaps.
+----+  const attackBox = { x: 420, y: 511.5, w: 77, h: 64.2 };
+----+  const hurtBox = { x: 407.7, y: 389, w: 104.6, h: 233 };
+----+  assert.equal(context.rects(attackBox, hurtBox), true);
+----+});
+----+
+----+test('rects() still rejects boxes that truly do not overlap', () => {
+----+  const { context } = fixture();
+----+  assert.equal(context.rects({ x: 0, y: 0, w: 10, h: 10 }, { x: 100, y: 100, w: 10, h: 10 }), false);
+----+});
+----+
+----+test('a press does not resolve a hit on the same frame (real startup delay)', () => {
+----+  const { context, attacker, defender } = fixture();
+----+  context.melee(attacker, 'light');
+----+  context.resolveMeleeHit(attacker, defender);
+----+  assert.equal(attacker.hitResolved, false);
+----+  assert.equal(defender.hp, 100);
+----+});
+----+
+----+test('a light attack in range connects once elapsed time enters the active window', () => {
+----+  const { context, attacker, defender } = fixture();
+----+  context.melee(attacker, 'light');
+----+  let hitFrame = null;
+----+  for (let i = 0; i < 20; i += 1) {
+----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+----+    context.resolveMeleeHit(attacker, defender);
+----+    if (attacker.hitResolved && hitFrame === null) hitFrame = i;
+----+  }
+----+  assert.ok(hitFrame !== null, 'expected the attack to connect before recovery ended');
+----+  const elapsedAtHit = attacker.actionDuration - (attacker.actionDuration - (hitFrame + 1) / 60);
+----+  assert.ok(elapsedAtHit >= attacker.atkStartup, 'hit should not land before startup ends');
+----+  assert.ok(elapsedAtHit < attacker.atkActiveEnd, 'hit should not land after the active window closes');
+----+  assert.ok(defender.hp < 100, 'defender should have taken damage');
+----+});
+----+
+----+test('a light attack only resolves once per press (no double-hit within the active window)', () => {
+----+  const { context, attacker, defender } = fixture();
+----+  context.melee(attacker, 'light');
+----+  for (let i = 0; i < 20; i += 1) {
+----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+----+    context.resolveMeleeHit(attacker, defender);
+----+  }
+----+  const hpAfterFirstResolution = defender.hp;
+----+  for (let i = 0; i < 10; i += 1) {
+----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+----+    context.resolveMeleeHit(attacker, defender);
+----+  }
+----+  assert.equal(defender.hp, hpAfterFirstResolution);
+----+});
+----+
+----+test('an out-of-range light attack never resolves a hit', () => {
+----+  const { context, attacker, defender } = fixture();
+----+  defender.x = attacker.x + 1000;
+----+  context.melee(attacker, 'light');
+----+  for (let i = 0; i < 20; i += 1) {
+----+    attacker.timer = Math.max(0, attacker.timer - 1 / 60);
+----+    context.resolveMeleeHit(attacker, defender);
+----+  }
+----+  assert.equal(attacker.hitResolved, false);
+----+  assert.equal(defender.hp, 100);
+----+});
+----diff --git a/tests/legacy/tier2-combat.test.mjs b/tests/legacy/tier2-combat.test.mjs
+----new file mode 100644
+----index 0000000..c559ae6
+------- /dev/null
+----+++ b/tests/legacy/tier2-combat.test.mjs
+----@@ -0,0 +1,142 @@
+----+import { test } from 'node:test';
+----+import assert from 'node:assert/strict';
+----+import { readFileSync } from 'node:fs';
+----+import vm from 'node:vm';
+----+
+----+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+----+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function projectile('));
+----+
+----+function makeContext() {
+----+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+----+  const context = vm.createContext({ sfx() {}, match });
+----+  vm.runInContext(combatSource, context);
+----+  return context;
+----+}
+----+function fighter(x, facing, extra = {}) {
+----+  return Object.assign({
+----+    d: { id: 'saja', size: 306, accent: '#fff', power: 1, defense: 1 },
+----+    x, y: 628, facing, vx: 0, vy: 0, grounded: true, crouching: false, block: false,
+----+    stun: 0, hp: 100, meter: 0, combo: 0, lastHit: undefined, attackId: 0,
+----+  }, extra);
+----+}
+----+
+----+test('hit() pushes both fighters apart, attacker less than defender', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1);
+----+  context.hit(a, d, 10, 8, -2, 0.2, '#fff');
+----+  assert.ok(d.vx > 0, 'defender pushed away from attacker');
+----+  assert.ok(a.vx < 0, 'attacker pushed away from defender');
+----+});
+----+
+----+test('pushback on block is stronger than pushback on hit (prevents block infinites)', () => {
+----+  const hitCtx = makeContext();
+----+  const a1 = fighter(400, 1), d1 = fighter(460, -1);
+----+  hitCtx.hit(a1, d1, 10, 8, -2, 0.2, '#fff');
+----+  const blockCtx = makeContext();
+----+  const a2 = fighter(400, 1), d2 = fighter(460, -1, { block: true, facing: -1 });
+----+  blockCtx.hit(a2, d2, 10, 8, -2, 0.2, '#fff');
+----+  assert.ok(Math.abs(a2.vx) > Math.abs(a1.vx));
+----+});
+----+
+----+test('damage scales down across a chained combo and floors at 50%', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1);
+----+  const dmgs = [];
+----+  let prevHp = d.hp;
+----+  for (let i = 0; i < 6; i += 1) {
+----+    a.attackId += 1;
+----+    context.hit(a, d, 10, 4, -2, 0.5, '#fff');
+----+    dmgs.push(prevHp - d.hp);
+----+    prevHp = d.hp;
+----+  }
+----+  for (let i = 1; i < dmgs.length; i += 1) assert.ok(dmgs[i] <= dmgs[i - 1], `hit ${i} should not deal more than hit ${i - 1}`);
+----+  assert.ok(dmgs[dmgs.length - 1] >= 4.9 && dmgs[dmgs.length - 1] <= 5.1, 'damage should floor around 50% of base');
+----+});
+----+
+----+test('a fresh hit (defender not currently stunned) is not scaled', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1);
+----+  context.hit(a, d, 10, 4, -2, 0.01, '#fff');
+----+  const hpAfterFirst = d.hp;
+----+  d.stun = 0;
+----+  a.attackId += 1;
+----+  context.hit(a, d, 10, 4, -2, 0.01, '#fff');
+----+  assert.equal(hpAfterFirst - d.hp, hpAfterFirst - (hpAfterFirst - 10), 'second unchained hit should deal full base damage again');
+----+});
+----+
+----+test('an overhead attack beats a crouching block', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1, { block: true, crouching: true, facing: -1 });
+----+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'overhead');
+----+  assert.ok(d.hp < 95, 'overhead should not be blocked by a crouching defender');
+----+});
+----+
+----+test('an overhead attack is still blocked standing', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1, { block: true, crouching: false, facing: -1 });
+----+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'overhead');
+----+  assert.ok(d.hp > 95, 'overhead should be blocked by a standing defender');
+----+});
+----+
+----+test('a low attack beats a standing block', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1, { block: true, crouching: false, facing: -1 });
+----+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'low');
+----+  assert.ok(d.hp < 95, 'low should not be blocked by a standing defender');
+----+});
+----+
+----+test('a low attack is still blocked crouching', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1, { block: true, crouching: true, facing: -1 });
+----+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'low');
+----+  assert.ok(d.hp > 95, 'low should be blocked by a crouching defender');
+----+});
+----+
+----+test('a mid attack is blocked regardless of stance', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1);
+----+  const standing = fighter(460, -1, { block: true, crouching: false, facing: -1 });
+----+  const crouched = fighter(460, -1, { block: true, crouching: true, facing: -1 });
+----+  context.hit(a, standing, 10, 4, -2, 0.2, '#fff', false, 'mid');
+----+  a.attackId += 1;
+----+  context.hit(a, crouched, 10, 4, -2, 0.2, '#fff', false, 'mid');
+----+  assert.ok(standing.hp > 95 && crouched.hp > 95);
+----+});
+----+
+----+test('a throw in range beats block and applies a hard knockdown', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(440, -1, { block: true, facing: -1 });
+----+  context.throwAttempt(a, d);
+----+  assert.equal(a.action, 'throw');
+----+  assert.equal(d.action, 'thrown');
+----+  assert.ok(d.hp < 100);
+----+  assert.equal(d.knockdown, true);
+----+  assert.equal(d.grounded, false);
+----+});
+----+
+----+test('a throw attempt out of range whiffs without affecting the opponent, with shorter recovery than a landed throw', () => {
+----+  const landed = makeContext();
+----+  const a1 = fighter(400, 1), d1 = fighter(440, -1);
+----+  landed.throwAttempt(a1, d1);
+----+  const whiffed = makeContext();
+----+  const a2 = fighter(400, 1), d2 = fighter(900, -1);
+----+  whiffed.throwAttempt(a2, d2);
+----+  assert.equal(d2.hp, 100);
+----+  assert.equal(d2.action, undefined);
+----+  assert.ok(a2.timer < a1.timer, 'a whiffed throw should recover faster than a landed one');
+----+});
+----+
+----+test('wake-up invincibility prevents a downed fighter from being hit', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1, { wakeupInvincible: true });
+----+  const landed = context.hit(a, d, 20, 4, -2, 0.2, '#fff');
+----+  assert.equal(landed, false);
+----+  assert.equal(d.hp, 100);
+----+});
+----+
+----+test('a hit landing on an airborne defender flags a hard knockdown', () => {
+----+  const context = makeContext();
+----+  const a = fighter(400, 1), d = fighter(460, -1, { grounded: false });
+----+  context.hit(a, d, 10, 4, -2, 0.2, '#fff');
+----+  assert.equal(d.knockdown, true);
+----+});
+----diff --git a/tests/legacy/tier3-polish.test.mjs b/tests/legacy/tier3-polish.test.mjs
+----new file mode 100644
+----index 0000000..7eba1a6
+------- /dev/null
+----+++ b/tests/legacy/tier3-polish.test.mjs
+----@@ -0,0 +1,91 @@
+----+import { test } from 'node:test';
+----+import assert from 'node:assert/strict';
+----+import { readFileSync } from 'node:fs';
+----+import vm from 'node:vm';
+----+
+----+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+----+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function updateProjectiles('));
+----+
+----+function makeContext() {
+----+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+----+  const context = vm.createContext({ sfx() {}, match, FLOOR: 628, W: 1280 });
+----+  vm.runInContext(combatSource, context);
+----+  return { context, match };
+----+}
+----+function fighter(x, facing, extra = {}) {
+----+  return Object.assign({
+----+    d: { id: 'saja', size: 306, speed: 4.8, jump: 12, accent: '#fff', power: 1, defense: 1 },
+----+    x, y: 628, facing, vx: 0, vy: 0, grounded: true, crouching: false, block: false,
+----+    stun: 0, hp: 100, meter: 0, combo: 0, lastHit: undefined, attackId: 0,
+----+    timer: 0, cool: 0, flash: 0, trail: [],
+----+  }, extra);
+----+}
+----+
+----+test('a heavier hit produces more hitstop and screen shake than a light one', () => {
+----+  const { context: c1, match: m1 } = makeContext();
+----+  c1.hit(fighter(400, 1), fighter(460, -1), 6, 4, -2, 0.2, '#fff');
+----+  const { context: c2, match: m2 } = makeContext();
+----+  c2.hit(fighter(400, 1), fighter(460, -1), 17, 8, -10, 0.45, '#fff');
+----+  assert.ok(m2.hitstop > m1.hitstop);
+----+  assert.ok(m2.shake > m1.shake);
+----+});
+----+
+----+test('canAct is false deep in a knockdown, true in the closing reversal window, true when neutral', () => {
+----+  const { context } = makeContext();
+----+  assert.equal(context.canAct({ action: 'down', timer: 0.5, stun: 0.5, cool: 0.5 }), false);
+----+  assert.equal(context.canAct({ action: 'down', timer: 0.1, stun: 0.1, cool: 0.1 }), true);
+----+  assert.equal(context.canAct({ action: 'idle', timer: 0, stun: 0, cool: 0 }), true);
+----+});
+----+
+----+test('a reversal thrown from the wake-up window clears wake-up invincibility once it commits', () => {
+----+  const { context } = makeContext();
+----+  const f = fighter(400, 1, { action: 'down', timer: 0.1, stun: 0.1, cool: 0.1, wakeupInvincible: true });
+----+  assert.ok(context.canAct(f));
+----+  context.melee(f, 'light', false, false);
+----+  assert.equal(f.wakeupInvincible, false);
+----+  assert.equal(f.action, 'light');
+----+});
+----+
+----+test('a button press during an unactionable frame is buffered and fires the instant the fighter becomes actionable', () => {
+----+  const { context } = makeContext();
+----+  const f = fighter(400, 1, { action: 'block', stun: 0.05, cool: 0.05 });
+----+  const o = fighter(460, -1);
+----+  let firedOnFrame = null;
+----+  for (let i = 0; i < 20; i += 1) {
+----+    context.updateFighter(f, o, { pressed: { light: i === 0 } }, 1 / 60);
+----+    if (f.action === 'light' && firedOnFrame === null) firedOnFrame = i;
+----+  }
+----+  assert.ok(firedOnFrame !== null && firedOnFrame > 0, 'buffered press should fire a few frames later, not be dropped');
+----+});
+----+
+----+test('a press outside the buffer window is dropped, not fired late', () => {
+----+  const { context } = makeContext();
+----+  const f = fighter(400, 1, { action: 'block', stun: 0.3, cool: 0.3 });
+----+  const o = fighter(460, -1);
+----+  for (let i = 0; i < 5; i += 1) context.updateFighter(f, o, { pressed: { light: i === 0 } }, 1 / 60);
+----+  for (let i = 0; i < 20; i += 1) context.updateFighter(f, o, { pressed: {} }, 1 / 60);
+----+  assert.notEqual(f.action, 'light');
+----+});
+----+
+----+test('separate light-then-heavy presses a few frames apart do not misfire as a throw', () => {
+----+  const { context } = makeContext();
+----+  const f = fighter(400, 1, { action: 'block', stun: 0.05, cool: 0.05 });
+----+  const o = fighter(900, -1);
+----+  context.updateFighter(f, o, { pressed: { light: true } }, 1 / 60);
+----+  context.updateFighter(f, o, { pressed: { heavy: true } }, 1 / 60);
+----+  for (let i = 0; i < 10; i += 1) context.updateFighter(f, o, { pressed: {} }, 1 / 60);
+----+  assert.notEqual(f.action, 'throw');
+----+});
+----+
+----+test('a true simultaneous light+heavy press still buffers into a throw attempt', () => {
+----+  const { context } = makeContext();
+----+  const f = fighter(400, 1, { action: 'block', stun: 0.05, cool: 0.05 });
+----+  const o = fighter(430, -1);
+----+  context.updateFighter(f, o, { pressed: { light: true, heavy: true } }, 1 / 60);
+----+  let firedOnFrame = null;
+----+  for (let i = 0; i < 10; i += 1) {
+----+    context.updateFighter(f, o, { pressed: {} }, 1 / 60);
+----+    if (f.action === 'throw' && firedOnFrame === null) firedOnFrame = i;
+----+  }
+----+  assert.ok(firedOnFrame !== null);
+----+});
+---diff --git a/tests/legacy/reassessment-fixes.test.mjs b/tests/legacy/reassessment-fixes.test.mjs
+---new file mode 100644
+---index 0000000..a849af4
+------ /dev/null
+---+++ b/tests/legacy/reassessment-fixes.test.mjs
+---@@ -0,0 +1,52 @@
+---+import { test } from 'node:test';
+---+import assert from 'node:assert/strict';
+---+import { readFileSync } from 'node:fs';
+---+import vm from 'node:vm';
+---+
+---+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+---+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function updateProjectiles('));
+---+
+---+function makeContext() {
+---+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+---+  const context = vm.createContext({ sfx() {}, match, FLOOR: 628, W: 1280 });
+---+  vm.runInContext(combatSource, context);
+---+  return { context, match };
+---+}
+---+function fighter(x, facing, extra = {}) {
+---+  return Object.assign({
+---+    d: { id: 'saja', size: 306, speed: 4.8, jump: 12, accent: '#fff', power: 1, defense: 1 },
+---+    x, y: 628, facing, vx: 0, vy: 0, grounded: true, crouching: false, block: false,
+---+    stun: 0, hp: 100, meter: 0, combo: 0, lastHit: undefined, attackId: 0,
+---+    timer: 0, cool: 0, flash: 0, trail: [],
+---+  }, extra);
+---+}
+---+
+---+test('a blocked hit resets the combo chain, so a later guard-break is not scaled by a stale prior combo', () => {
+---+  const { context } = makeContext();
+---+  const a = fighter(400, 1), d = fighter(460, -1);
+---+  for (let i = 0; i < 5; i += 1) { a.attackId += 1; context.hit(a, d, 10, 4, -2, 0.5, '#fff'); }
+---+  assert.equal(d.hitsTaken, 5);
+---+  d.stun = 0; d.block = true; d.facing = -1;
+---+  a.attackId += 1; context.hit(a, d, 10, 4, -2, 0.11, '#fff');
+---+  assert.equal(d.hitsTaken, 0, 'blocking should clear the combo chain');
+---+  d.block = false;
+---+  const hpBefore = d.hp;
+---+  a.attackId += 1;
+---+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'low');
+---+  const dmg = hpBefore - d.hp;
+---+  assert.ok(dmg > 9.9 && dmg <= 10.01, `guard-breaking hit should deal full base damage, got ${dmg}`);
+---+});
+---+
+---+test('the jumpattack multi-hit is classified as overhead (beats crouch block, blocked only standing)', () => {
+---+  const { context } = makeContext();
+---+  const crouchBlock = fighter(430, -1, { block: true, crouching: true, facing: -1 });
+---+  const a1 = fighter(400, 1);
+---+  const landed = context.hit(a1, crouchBlock, 3.2, 2, -2, 0.13, '#62b7ff', false, 'overhead');
+---+  assert.ok(landed);
+---+  assert.ok(crouchBlock.hp < 100, 'a jump-in hit should not be blockable while crouching');
+---+
+---+  const standBlock = fighter(430, -1, { block: true, crouching: false, facing: -1 });
+---+  const a2 = fighter(400, 1);
+---+  context.hit(a2, standBlock, 3.2, 2, -2, 0.13, '#62b7ff', false, 'overhead');
+---+  assert.ok(standBlock.hp > 99, 'a jump-in hit should still be blockable standing');
+---+});
+--diff --git a/tests/legacy/facing-walk.test.mjs b/tests/legacy/facing-walk.test.mjs
+--index d29b3a6..2238200 100644
+----- a/tests/legacy/facing-walk.test.mjs
+--+++ b/tests/legacy/facing-walk.test.mjs
+--@@ -11,7 +11,7 @@ function fixture(action='idle', facing=1) {
+--     isFacingLocked(f){return (['light','heavy','special1','special2','roll','jumpattack','uppercut'].includes(f.action)&&f.timer>0)||f.stun>0},
+--     canAct(f){return (f.stun<=0&&f.cool<=0)||(f.action==='down'&&f.timer>0&&f.timer<=.12)},
+--     match:{state:'fight'}, FLOOR:628, W:1280, sfx(){},
+---    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){}, throwAttempt(){} });
+--+    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){}, resolveSpecial(){}, throwAttempt(){} });
+--   vm.runInContext(updateSource, context);
+--   const f={d:{speed:4.8,jump:12},x:400,y:628,vx:0,vy:0,grounded:true,facing,
+--     action,timer:action==='idle'?0:.3,cool:action==='idle'?0:.3,stun:0,flash:0,trail:[]};
+--diff --git a/tests/legacy/reassessment-fixes.test.mjs b/tests/legacy/reassessment-fixes.test.mjs
+--new file mode 100644
+--index 0000000..a849af4
+----- /dev/null
+--+++ b/tests/legacy/reassessment-fixes.test.mjs
+--@@ -0,0 +1,52 @@
+--+import { test } from 'node:test';
+--+import assert from 'node:assert/strict';
+--+import { readFileSync } from 'node:fs';
+--+import vm from 'node:vm';
+--+
+--+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+--+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function updateProjectiles('));
+--+
+--+function makeContext() {
+--+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight' };
+--+  const context = vm.createContext({ sfx() {}, match, FLOOR: 628, W: 1280 });
+--+  vm.runInContext(combatSource, context);
+--+  return { context, match };
+--+}
+--+function fighter(x, facing, extra = {}) {
+--+  return Object.assign({
+--+    d: { id: 'saja', size: 306, speed: 4.8, jump: 12, accent: '#fff', power: 1, defense: 1 },
+--+    x, y: 628, facing, vx: 0, vy: 0, grounded: true, crouching: false, block: false,
+--+    stun: 0, hp: 100, meter: 0, combo: 0, lastHit: undefined, attackId: 0,
+--+    timer: 0, cool: 0, flash: 0, trail: [],
+--+  }, extra);
+--+}
+--+
+--+test('a blocked hit resets the combo chain, so a later guard-break is not scaled by a stale prior combo', () => {
+--+  const { context } = makeContext();
+--+  const a = fighter(400, 1), d = fighter(460, -1);
+--+  for (let i = 0; i < 5; i += 1) { a.attackId += 1; context.hit(a, d, 10, 4, -2, 0.5, '#fff'); }
+--+  assert.equal(d.hitsTaken, 5);
+--+  d.stun = 0; d.block = true; d.facing = -1;
+--+  a.attackId += 1; context.hit(a, d, 10, 4, -2, 0.11, '#fff');
+--+  assert.equal(d.hitsTaken, 0, 'blocking should clear the combo chain');
+--+  d.block = false;
+--+  const hpBefore = d.hp;
+--+  a.attackId += 1;
+--+  context.hit(a, d, 10, 4, -2, 0.2, '#fff', false, 'low');
+--+  const dmg = hpBefore - d.hp;
+--+  assert.ok(dmg > 9.9 && dmg <= 10.01, `guard-breaking hit should deal full base damage, got ${dmg}`);
+--+});
+--+
+--+test('the jumpattack multi-hit is classified as overhead (beats crouch block, blocked only standing)', () => {
+--+  const { context } = makeContext();
+--+  const crouchBlock = fighter(430, -1, { block: true, crouching: true, facing: -1 });
+--+  const a1 = fighter(400, 1);
+--+  const landed = context.hit(a1, crouchBlock, 3.2, 2, -2, 0.13, '#62b7ff', false, 'overhead');
+--+  assert.ok(landed);
+--+  assert.ok(crouchBlock.hp < 100, 'a jump-in hit should not be blockable while crouching');
+--+
+--+  const standBlock = fighter(430, -1, { block: true, crouching: false, facing: -1 });
+--+  const a2 = fighter(400, 1);
+--+  context.hit(a2, standBlock, 3.2, 2, -2, 0.13, '#62b7ff', false, 'overhead');
+--+  assert.ok(standBlock.hp > 99, 'a jump-in hit should still be blockable standing');
+--+});
+--diff --git a/tests/legacy/special-frames.test.mjs b/tests/legacy/special-frames.test.mjs
+--new file mode 100644
+--index 0000000..dffcdcf
+----- /dev/null
+--+++ b/tests/legacy/special-frames.test.mjs
+--@@ -0,0 +1,70 @@
+--+import { test } from 'node:test';
+--+import assert from 'node:assert/strict';
+--+import { readFileSync } from 'node:fs';
+--+import vm from 'node:vm';
+--+
+--+const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
+--+const combatSource = game.slice(game.indexOf('  function rects('), game.indexOf('  function updateProjectiles('));
+--+
+--+function makeContext() {
+--+  const match = { particles: [], shake: 0, hitstop: 0, state: 'fight', projectiles: [] };
+--+  const context = vm.createContext({ sfx() {}, match, FLOOR: 628, W: 1280 });
+--+  vm.runInContext(combatSource, context);
+--+  return { context, match };
+--+}
+--+function fighter(x, facing, kind, extra = {}) {
+--+  return Object.assign({
+--+    d: { id: 'f', size: 310, speed: 4.8, jump: 12, accent: '#fff', power: 1, defense: 1, kind },
+--+    x, y: 628, facing, vx: 0, vy: 0, grounded: true, crouching: false, block: false,
+--+    stun: 0, hp: 100, meter: 0, combo: 0, lastHit: undefined, attackId: 0,
+--+    timer: 0, cool: 0, flash: 0, trail: [],
+--+  }, extra);
+--+}
+--+
+--+test('a projectile special does not spawn its projectile on the same frame it is pressed', () => {
+--+  const { context, match } = makeContext();
+--+  const f = fighter(400, 1, 'heavy'), o = fighter(500, -1, 'balanced');
+--+  context.special(f, o, 1);
+--+  assert.equal(match.projectiles.length, 0);
+--+});
+--+
+--+test('a projectile special spawns its projectile once the startup window elapses', () => {
+--+  const { context, match } = makeContext();
+--+  const f = fighter(400, 1, 'heavy'), o = fighter(500, -1, 'balanced');
+--+  context.special(f, o, 1);
+--+  for (let i = 0; i < 15; i += 1) {
+--+    f.timer = Math.max(0, f.timer - 1 / 60);
+--+    context.resolveSpecial(f, o);
+--+  }
+--+  assert.equal(match.projectiles.length, 1);
+--+});
+--+
+--+test('a melee-hitbox special (whip) does not resolve its hit check on the press frame', () => {
+--+  const { context } = makeContext();
+--+  const f = fighter(400, 1, 'whip'), o = fighter(430, -1, 'balanced');
+--+  context.special(f, o, 1);
+--+  context.resolveSpecial(f, o);
+--+  assert.equal(o.hp, 100, 'the whip hit should not have resolved yet on the same frame');
+--+});
+--+
+--+test('a melee-hitbox special (whip) connects once its startup window elapses, if still in range', () => {
+--+  const { context } = makeContext();
+--+  const f = fighter(400, 1, 'whip'), o = fighter(430, -1, 'balanced');
+--+  context.special(f, o, 1);
+--+  for (let i = 0; i < 15; i += 1) {
+--+    f.timer = Math.max(0, f.timer - 1 / 60);
+--+    context.resolveSpecial(f, o);
+--+  }
+--+  assert.ok(o.hp < 100);
+--+});
+--+
+--+test('a special only resolves once, even if resolveSpecial is called many times after the window opens', () => {
+--+  const { context, match } = makeContext();
+--+  const f = fighter(400, 1, 'heavy'), o = fighter(500, -1, 'balanced');
+--+  context.special(f, o, 1);
+--+  for (let i = 0; i < 30; i += 1) {
+--+    f.timer = Math.max(0, f.timer - 1 / 60);
+--+    context.resolveSpecial(f, o);
+--+  }
+--+  assert.equal(match.projectiles.length, 1);
+--+});
+diff --git a/tests/legacy/draw-idle-bounds.test.mjs b/tests/legacy/draw-idle-bounds.test.mjs
+new file mode 100644
+index 0000000..9dbe2a2
+--- /dev/null
++++ b/tests/legacy/draw-idle-bounds.test.mjs
+@@ -0,0 +1,79 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++
++const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8');
++const drawIdleSource = game.slice(game.indexOf('  function drawIdle('), game.indexOf('  function drawIdleShadow('));
++
++function makeRecordingCtx() {
++  const state = { alpha: 1, blend: 'source-over', tx: 0, ty: 0, sx: 1 };
++  const stack = [];
++  const calls = [];
++  const ctx = {
++    setTransform() { state.tx = 0; state.ty = 0; state.sx = 1; },
++    save() { stack.push({ ...state }); },
++    restore() { Object.assign(state, stack.pop()); },
++    translate(x, y) { state.tx += x; state.ty += y; },
++    scale(sx) { state.sx *= sx; },
++    clearRect() {},
++    get globalCompositeOperation() { return state.blend; }, set globalCompositeOperation(v) { state.blend = v; },
++    get globalAlpha() { return state.alpha; }, set globalAlpha(v) { state.alpha = v; },
++    imageSmoothingEnabled: true, imageSmoothingQuality: 'high',
++    drawImage(im, sx, sy, sw, sh, dx, dy, dw, dh) {
++      const pageLeftUnscaled = state.tx + dx * state.sx;
++      const pageRightUnscaled = state.tx + (dx + dw) * state.sx;
++      const left = Math.min(pageLeftUnscaled, pageRightUnscaled), right = Math.max(pageLeftUnscaled, pageRightUnscaled);
++      const top = state.ty + dy, bottom = top + dh;
++      calls.push({ left, right, top, bottom });
++    },
++  };
++  return { ctx, calls };
++}
++
++function runDrawIdle(x, y, height, face, W, H) {
++  const { ctx: idleCtx, calls } = makeRecordingCtx();
++  let capturedClip = null;
++  const outerCtx = { drawImage(canvas, cx, cy, cw, ch) { capturedClip = { cx, cy, cw, ch }; } };
++  const fmA = { anchorX: 40, bottom: 180, sx: 0, sy: 0, sw: 120, sh: 200 };
++  const fmB = { anchorX: 55, bottom: 190, sx: 0, sy: 0, sw: 130, sh: 210 };
++  const images = { idle_test: {} };
++  const sheetMeta = { get: () => ({ maxH: 400, maxW: 300, frames: [fmA, fmB] }) };
++  const wrapped = new Function('idleCtx', 'ctx', 'W', 'H', 'images', 'sheetMeta', 'globalTime', 'idleCanvas',
++    `${drawIdleSource}\nreturn drawIdle;`);
++  const fn = wrapped(idleCtx, outerCtx, W, H, images, sheetMeta, 0, {});
++  fn({ id: 'test' }, 0, x, y, height, face, 1, Infinity, 0, false);
++  return { clip: capturedClip, calls };
++}
++
++test('the clip/clear/copy box always fully contains the actual drawn sprite, both facings, mid-screen', () => {
++  const W = 1280, H = 720;
++  for (const face of [1, -1]) {
++    const { clip, calls } = runDrawIdle(400, 600, 300, face, W, H);
++    assert.ok(clip.cw > 0 && clip.ch > 0);
++    for (const c of calls) {
++      assert.ok(c.left >= clip.cx - 0.01 && c.right <= clip.cx + clip.cw + 0.01);
++      assert.ok(c.top >= clip.cy - 0.01 && c.bottom <= clip.cy + clip.ch + 0.01);
++    }
++  }
++});
++
++test('the clip box stays within canvas bounds and still contains the visible portion near the edges', () => {
++  const W = 1280, H = 720;
++  for (const [x, y, face] of [[0, 0, 1], [W, H, -1], [50, 50, 1], [1250, 700, -1]]) {
++    const { clip, calls } = runDrawIdle(x, y, 300, face, W, H);
++    assert.ok(clip.cx >= 0 && clip.cy >= 0 && clip.cx + clip.cw <= W && clip.cy + clip.ch <= H);
++    for (const c of calls) {
++      const vl = Math.max(0, c.left), vr = Math.min(W, c.right), vt = Math.max(0, c.top), vb = Math.min(H, c.bottom);
++      if (vr <= vl || vb <= vt) continue;
++      assert.ok(vl >= clip.cx - 0.01 && vr <= clip.cx + clip.cw + 0.01);
++      assert.ok(vt >= clip.cy - 0.01 && vb <= clip.cy + clip.ch + 0.01);
++    }
++  }
++});
++
++test('the clip box is much smaller than the full canvas for a typical mid-screen draw (the actual optimization)', () => {
++  const W = 1280, H = 720;
++  const { clip } = runDrawIdle(400, 600, 300, 1, W, H);
++  const clipArea = clip.cw * clip.ch, fullArea = W * H;
++  assert.ok(clipArea < fullArea * 0.25, `expected a much smaller clip region, got ${clipArea} of ${fullArea}`);
++});
