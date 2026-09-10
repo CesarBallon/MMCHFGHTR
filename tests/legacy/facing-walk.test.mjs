@@ -8,8 +8,10 @@ const game = readFileSync(new URL('../../dist/game.js', import.meta.url), 'utf8'
 const updateSource = game.slice(game.indexOf('  function updateFighter('), game.indexOf('  function updateProjectiles('));
 function fixture(action='idle', facing=1) {
   const context = vm.createContext({ AI_ATTACK_ACTIONS:['light','heavy','special1','special2','roll','jumpattack','uppercut'],
+    isFacingLocked(f){return (['light','heavy','special1','special2','roll','jumpattack','uppercut'].includes(f.action)&&f.timer>0)||f.stun>0},
+    canAct(f){return (f.stun<=0&&f.cool<=0)||(f.action==='down'&&f.timer>0&&f.timer<=.12)},
     match:{state:'fight'}, FLOOR:628, W:1280, sfx(){},
-    melee(f,o,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){} });
+    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){}, throwAttempt(){} });
   vm.runInContext(updateSource, context);
   const f={d:{speed:4.8,jump:12},x:400,y:628,vx:0,vy:0,grounded:true,facing,
     action,timer:action==='idle'?0:.3,cool:action==='idle'?0:.3,stun:0,flash:0,trail:[]};
@@ -58,3 +60,4 @@ test('active hit rejects targets behind either facing, preserves front and verti
     assert.equal(context.pendingHit(a,{x:a.x+facing*50000,y:141000},0),undefined);
   }
 });
+
