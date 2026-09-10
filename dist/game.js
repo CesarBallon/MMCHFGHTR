@@ -357,7 +357,7 @@
     if(defender.stun>0&&attacker.attackId===defender.lastHit)return false;defender.lastHit=attacker.attackId;
     const guardOk=guardType==='overhead'?!defender.crouching:guardType==='low'?defender.crouching:true;
     const blocked=defender.block&&defender.grounded&&guardOk&&Math.sign(attacker.x-defender.x)===defender.facing;
-    const chain=blocked?(defender.hitsTaken||0):(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
+    const chain=blocked?0:(defender.stun>0?(defender.hitsTaken||0)+1:1);defender.hitsTaken=chain;
     const comboScale=blocked?1:Math.max(.5,1-.1*(chain-1));
     damage*=attacker.d.power/defender.d.defense*comboScale;
     const weight=Math.max(.6,Math.min(1.6,damage/10));
@@ -402,8 +402,17 @@
     if(o.hp<=0){match.state='ko';match.stateTime=2.5;match.winner=f;f.rounds++;sfx('ko')}
   }
   function projectile(f,opts={}){match.projectiles.push({owner:f,x:f.x+f.facing*60,y:f.y-(opts.y||105),vx:f.facing*(opts.speed||8),vy:opts.vy||0,w:opts.w||50,h:opts.h||28,life:opts.life||1.7,damage:opts.damage||10,kind:opts.kind||'wave',color:opts.color||f.d.accent,returning:opts.returning||false,stun:opts.stun||false,age:0});sfx('projectile',opts.kind==='bullet'?1.28:1);}
+  const SPECIAL_STARTUP=.08;
   function special(f,o,n){
     if(!canAct(f))return;f.wakeupInvincible=false;f.attackId++;f.combo=0;f.action=n===1?'special1':'special2';f.timer=.65;f.actionDuration=.65;f.cool=.55;
+    f.pendingSpecial=n;
+    sfx('special',n===1?1.06:.91,.85);
+  }
+  function resolveSpecial(f,o){
+    if(f.pendingSpecial==null)return;
+    const elapsed=f.actionDuration-f.timer;
+    if(elapsed<SPECIAL_STARTUP)return;
+    const n=f.pendingSpecial;f.pendingSpecial=null;
     const k=f.d.kind;
     if(n===1){
       if(k==='whip'){const hb={x:f.facing>0?f.x+20:f.x-250,y:f.y-135,w:250,h:70};if(rects(hb,hurtbox(o)))hit(f,o,13,7,-3,.3,'#ff5ed0');match.projectiles.push({owner:f,x:f.x,y:f.y-115,vx:0,vy:0,w:250,h:10,life:.22,damage:0,kind:'whip',color:'#ff5ed0',age:0})}
@@ -424,7 +433,6 @@
       else if(k==='odd')projectile(f,{kind:'sandal',speed:8,w:58,h:30,damage:11,returning:true,color:'#ad6c34'});
       else{f.action='uppercut';f.timer=.7;f.actionDuration=.7;f.vy=-12;f.vx=f.facing*5;if(Math.abs(o.x-f.x)<135)hit(f,o,16,8,-9,.4,'#ff8b42')}
     }
-    sfx('special',n===1?1.06:.91,.85);
   }
 
   const AI_ATTACK_ACTIONS=['light','heavy','special1','special2','roll','jumpattack','uppercut','throw'];
@@ -454,7 +462,8 @@
       else{const dir=(c.right?1:0)-(c.left?1:0);f.vx+=dir*f.d.speed*.34;f.vx=Math.max(-f.d.speed,Math.min(f.d.speed,f.vx));if(dir)f.action='walk';else if(f.grounded)f.action=f.block?'block':'idle';if(c.pressed?.up&&f.grounded){f.vy=-f.d.jump;f.grounded=false;f.action='jump';f.actionDuration=.7;sfx('jump')}}
     }
     resolveMeleeHit(f,o);
-    if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff')}}
+    resolveSpecial(f,o);
+    if(f.action==='jumpattack'&&Math.abs(o.x-f.x)<105&&Math.abs(o.y-f.y)<145){f.multiTick=(f.multiTick||0)-dt;if(f.multiTick<=0){f.multiTick=.16;f.attackId++;hit(f,o,3.2,2,-2,.13,'#62b7ff',false,'overhead')}}
     f.vy+=.62;f.x+=f.vx;f.y+=f.vy;f.vx*=f.grounded?.75:.97;
     if(f.y>=FLOOR){f.y=FLOOR;f.vy=0;f.grounded=true;if(f.knockdown){f.knockdown=false;f.action='down';f.timer=.5;f.actionDuration=.5;f.cool=.5;f.stun=.5;f.wakeupInvincible=true}else if(f.action==='jump'||f.action==='jumpattack'||f.action==='uppercut')f.action='idle'}else f.grounded=false;
     f.x=Math.max(62,Math.min(W-62,f.x));if(f.timer<=0&&f.cool<=0&&f.stun<=0&&f.grounded){f.wakeupInvincible=false;f.action=f.block?'block':((c.right?1:0)-(c.left?1:0))!==0?'walk':'idle';}

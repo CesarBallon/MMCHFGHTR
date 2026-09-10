@@ -11,7 +11,7 @@ function fixture(action='idle', facing=1) {
     isFacingLocked(f){return (['light','heavy','special1','special2','roll','jumpattack','uppercut'].includes(f.action)&&f.timer>0)||f.stun>0},
     canAct(f){return (f.stun<=0&&f.cool<=0)||(f.action==='down'&&f.timer>0&&f.timer<=.12)},
     match:{state:'fight'}, FLOOR:628, W:1280, sfx(){},
-    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){}, throwAttempt(){} });
+    melee(f,kind){f.action=kind;f.timer=.27;f.cool=.27;}, special(){}, hit(){}, resolveMeleeHit(){}, resolveSpecial(){}, throwAttempt(){} });
   vm.runInContext(updateSource, context);
   const f={d:{speed:4.8,jump:12},x:400,y:628,vx:0,vy:0,grounded:true,facing,
     action,timer:action==='idle'?0:.3,cool:action==='idle'?0:.3,stun:0,flash:0,trail:[]};
