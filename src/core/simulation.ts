@@ -177,14 +177,19 @@ function advanceFighter(
   };
 }
 
+function isFacingLocked(fighter: FighterState): boolean {
+  return fighter.action.startsWith("move:") || fighter.stunFrames > 0;
+}
+
 function faceOpponents(
   first: FighterState,
   second: FighterState,
 ): readonly [FighterState, FighterState] {
   const firstFaces: -1 | 1 = first.x <= second.x ? 1 : -1;
+  const secondFaces: -1 | 1 = firstFaces === 1 ? -1 : 1;
   return [
-    { ...first, facing: firstFaces },
-    { ...second, facing: firstFaces === 1 ? -1 : 1 },
+    isFacingLocked(first) ? first : { ...first, facing: firstFaces },
+    isFacingLocked(second) ? second : { ...second, facing: secondFaces },
   ];
 }
 
